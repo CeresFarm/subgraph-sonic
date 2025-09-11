@@ -1,0 +1,89 @@
+specVersion: 1.2.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: VaultV3
+    network: sonic
+    source:
+      address: "0x8d6eD65d53a1587a98c0aE293768BC7bBce87463"
+      abi: VaultV3
+      startBlock: 46140944
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - Deposit
+        - Withdraw
+        - Transfer
+        - Approval
+        - StrategyChanged
+        - StrategyReported
+        - DebtUpdated
+        - RoleSet
+        - UpdateFutureRoleManager
+        - UpdateRoleManager
+        - UpdateAccountant
+        - UpdateDepositLimitModule
+        - UpdateWithdrawLimitModule
+        - UpdateDefaultQueue
+        - UpdateUseDefaultQueue
+        - UpdateAutoAllocate
+        - UpdatedMaxDebtForStrategy
+        - UpdateDepositLimit
+        - UpdateMinimumTotalIdle
+        - UpdateProfitMaxUnlockTime
+        - DebtPurchased
+        - Shutdown
+      abis:
+        - name: VaultV3
+          file: ./abis/VaultV3.json
+      eventHandlers:
+        - event: Deposit(indexed address,indexed address,uint256,uint256)
+          handler: handleDeposit
+        - event: Withdraw(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleWithdraw
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+        - event: StrategyChanged(indexed address,indexed uint256)
+          handler: handleStrategyChanged
+        - event: StrategyReported(indexed address,uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handleStrategyReported
+        - event: DebtUpdated(indexed address,uint256,uint256)
+          handler: handleDebtUpdated
+        - event: RoleSet(indexed address,indexed uint256)
+          handler: handleRoleSet
+        - event: UpdateFutureRoleManager(indexed address)
+          handler: handleUpdateFutureRoleManager
+        - event: UpdateRoleManager(indexed address)
+          handler: handleUpdateRoleManager
+        - event: UpdateAccountant(indexed address)
+          handler: handleUpdateAccountant
+        - event: UpdateDepositLimitModule(indexed address)
+          handler: handleUpdateDepositLimitModule
+        - event: UpdateWithdrawLimitModule(indexed address)
+          handler: handleUpdateWithdrawLimitModule
+        - event: UpdateDefaultQueue(address[])
+          handler: handleUpdateDefaultQueue
+        - event: UpdateUseDefaultQueue(bool)
+          handler: handleUpdateUseDefaultQueue
+        - event: UpdateAutoAllocate(bool)
+          handler: handleUpdateAutoAllocate
+        - event: UpdatedMaxDebtForStrategy(indexed address,indexed address,uint256)
+          handler: handleUpdatedMaxDebtForStrategy
+        - event: UpdateDepositLimit(uint256)
+          handler: handleUpdateDepositLimit
+        - event: UpdateMinimumTotalIdle(uint256)
+          handler: handleUpdateMinimumTotalIdle
+        - event: UpdateProfitMaxUnlockTime(uint256)
+          handler: handleUpdateProfitMaxUnlockTime
+        - event: DebtPurchased(indexed address,uint256)
+          handler: handleDebtPurchased
+        - event: Shutdown()
+          handler: handleShutdown
+      file: ./src/vault-v-3.ts
