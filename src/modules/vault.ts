@@ -1,6 +1,7 @@
-import { Bytes } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { VaultStats } from "../../generated/schema";
 import { BIGINT_ZERO } from "../utils/constants";
+import { VaultV3 } from "../../generated/VaultV3/VaultV3";
 
 export function getOrCreateVaultStats(vaultAddress: Bytes): VaultStats {
   let vaultStats = VaultStats.load(vaultAddress);
@@ -16,4 +17,14 @@ export function getOrCreateVaultStats(vaultAddress: Bytes): VaultStats {
     vaultStats.save();
   }
   return vaultStats;
+}
+
+export function getVaultPricePerShare(vaultAddress: Address): BigInt | null {
+  const vaultContract = VaultV3.bind(vaultAddress);
+  const pricePerShare = vaultContract.try_pricePerShare();
+  if (!pricePerShare.reverted) {
+    return pricePerShare.value;
+  } else {
+    return null;
+  }
 }

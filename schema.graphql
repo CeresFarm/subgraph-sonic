@@ -205,7 +205,8 @@ type TransactionHistory @entity(immutable: true) {
 }
 
 type VaultStats @entity(immutable: false) {
-  id: Bytes! # use vault address as ID
+  " Vault address "
+  id: Bytes!
   totalGain: BigInt!
   totalLoss: BigInt!
   currentDebt: BigInt!
@@ -213,4 +214,16 @@ type VaultStats @entity(immutable: false) {
   totalFees: BigInt!
   totalRefunds: BigInt!
   lastUpdateTimestamp: BigInt!
+}
+
+type UserVaultStats @entity(immutable: false) {
+  " User address + Vault address "
+  id: ID!
+  totalAssetsDeposited: BigInt!
+  totalAssetsWithdrawn: BigInt!
+  realizedPnlAssets: BigInt!
+  realizedPnlUsd: BigDecimal!
+  currentShares: BigInt!
+  avgPricePerShare: BigInt!
+  lastUpdatedTimestamp: BigInt!
 }

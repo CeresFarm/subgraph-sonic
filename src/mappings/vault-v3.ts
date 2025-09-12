@@ -45,9 +45,10 @@ import {
   DebtPurchased,
   Shutdown,
 } from "../../generated/schema";
-import { Bytes } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { createTransactionHistory } from "../modules/transaction";
-import { getOrCreateVaultStats } from "../modules/vault";
+import { getOrCreateVaultStats, getVaultPricePerShare } from "../modules/vault";
+import { getOrCreateUserVaultStats } from "../modules/user";
 
 export function handleDeposit(event: DepositEvent): void {
   let entity = new Deposit(
@@ -64,6 +65,33 @@ export function handleDeposit(event: DepositEvent): void {
   entity.save();
 
   createTransactionHistory(event, null);
+
+  // Update user vault stats
+  {
+    const id = event.params.owner
+      .toHexString()
+      .concat("-")
+      .concat(event.address.toHexString());
+    let userVaultStats = getOrCreateUserVaultStats(id);
+    const totalSharesAfterDeposit = userVaultStats.currentShares.plus(
+      event.params.shares
+    );
+    const pricePerShare = getVaultPricePerShare(event.address);
+    if (pricePerShare) {
+      // If the pricePerShare value is received from the contract, calculate the avgPricePerShare of user
+      // Avg PricePerShare = (Prev shares * Prev Avg PPS + Deposited Shares * Current PPS) / totalShares
+      const numerator = userVaultStats.avgPricePerShare
+        .times(userVaultStats.currentShares)
+        .plus(event.params.shares.times(pricePerShare));
+      userVaultStats.avgPricePerShare = numerator.div(totalSharesAfterDeposit);
+    }
+
+    userVaultStats.totalAssetsDeposited =
+      userVaultStats.totalAssetsDeposited.plus(event.params.assets);
+    userVaultStats.currentShares = totalSharesAfterDeposit;
+    userVaultStats.lastUpdatedTimestamp = event.block.timestamp;
+    userVaultStats.save();
+  }
 }
 
 export function handleWithdraw(event: WithdrawEvent): void {
@@ -83,6 +111,39 @@ export function handleWithdraw(event: WithdrawEvent): void {
   entity.save();
 
   createTransactionHistory(null, event);
+
+  // Update user vault stats
+  {
+    const id = event.params.owner
+      .toHexString()
+      .concat("-")
+      .concat(event.address.toHexString());
+    let userVaultStats = getOrCreateUserVaultStats(id);
+
+    const pricePerShare = getVaultPricePerShare(event.address);
+    if (pricePerShare) {
+      const vaultDecimalsFactor = BigInt.fromI32(10).pow(18); // @todo Replace18 with vault decimals to generalize fn
+      // Calculate realized profits/loss
+      const pnlAssets = pricePerShare
+        .minus(userVaultStats.avgPricePerShare)
+        .times(event.params.shares)
+        .div(vaultDecimalsFactor);
+
+      userVaultStats.realizedPnlAssets =
+        userVaultStats.realizedPnlAssets.plus(pnlAssets);
+
+      // @todo Add realized pnl usd
+    }
+
+    userVaultStats.totalAssetsWithdrawn =
+      userVaultStats.totalAssetsWithdrawn.plus(event.params.assets);
+    userVaultStats.currentShares = userVaultStats.currentShares.minus(
+      event.params.shares
+    );
+    // Avg price per share remains the same on withdraw
+    userVaultStats.lastUpdatedTimestamp = event.block.timestamp;
+    userVaultStats.save();
+  }
 }
 
 export function handleTransfer(event: TransferEvent): void {
