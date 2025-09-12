@@ -16,7 +16,7 @@
     "@graphprotocol/graph-ts": "0.37.0"
   },
   "devDependencies": {
-    "dotenv": "^17.2.2",
+    "dotenv-cli": "^10.0.0",
     "matchstick-as": "0.6.0"
   }
 }
