@@ -24,6 +24,7 @@ export function createTransactionHistory(
 
     // Create a new transaction history record for the deposit event
     transaction = new TransactionHistory(depositEvent.transaction.hash);
+    transaction.vaultAddress = depositEvent.address;
     transaction.transactionType = TransactionType.VaultDeposit;
     transaction.sender = depositEvent.params.sender;
     transaction.owner = depositEvent.params.owner;
@@ -41,6 +42,7 @@ export function createTransactionHistory(
 
     // Create a new transaction history record for the withdraw event
     transaction = new TransactionHistory(withdrawEvent.transaction.hash);
+    transaction.vaultAddress = withdrawEvent.address;
     transaction.transactionType = TransactionType.VaultWithdraw;
     transaction.sender = withdrawEvent.params.sender;
     transaction.owner = withdrawEvent.params.owner;

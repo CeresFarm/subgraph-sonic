@@ -206,6 +206,7 @@ type Shutdown @entity(immutable: true) {
 
 type TransactionHistory @entity(immutable: true) {
   id: Bytes!
+  vaultAddress: Bytes! # address
   transactionType: TransactionType!
   sender: Bytes! # address
   owner: Bytes! # address
