@@ -28,7 +28,6 @@ import {
   Transfer,
   Approval,
   StrategyChanged,
-  StrategyReported,
   DebtUpdated,
   RoleSet,
   UpdateFutureRoleManager,
@@ -48,6 +47,7 @@ import {
 } from "../../generated/schema";
 import { Bytes } from "@graphprotocol/graph-ts";
 import { createTransactionHistory } from "../modules/transaction";
+import { getOrCreateVaultStats } from "../modules/vault";
 
 export function handleDeposit(event: DepositEvent): void {
   let entity = new Deposit(
@@ -121,25 +121,6 @@ export function handleStrategyChanged(event: StrategyChangedEvent): void {
   );
   entity.strategy = event.params.strategy;
   entity.change_type = event.params.change_type;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-}
-
-export function handleStrategyReported(event: StrategyReportedEvent): void {
-  let entity = new StrategyReported(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.strategy = event.params.strategy;
-  entity.gain = event.params.gain;
-  entity.loss = event.params.loss;
-  entity.current_debt = event.params.current_debt;
-  entity.protocol_fees = event.params.protocol_fees;
-  entity.total_fees = event.params.total_fees;
-  entity.total_refunds = event.params.total_refunds;
 
   entity.blockNumber = event.block.number;
   entity.blockTimestamp = event.block.timestamp;
@@ -375,4 +356,20 @@ export function handleShutdown(event: ShutdownEvent): void {
   entity.transactionHash = event.transaction.hash;
 
   entity.save();
+}
+
+/////////////////////////////////////////////////////////////////
+
+export function handleStrategyReported(event: StrategyReportedEvent): void {
+  const vaultStats = getOrCreateVaultStats(event.address);
+  vaultStats.totalGain = vaultStats.totalGain.plus(event.params.gain);
+  vaultStats.totalLoss = vaultStats.totalLoss.plus(event.params.loss);
+  vaultStats.currentDebt = event.params.current_debt;
+  vaultStats.totalProtocolFees = event.params.protocol_fees;
+  vaultStats.totalFees = vaultStats.totalFees.plus(event.params.total_fees);
+  vaultStats.totalRefunds = vaultStats.totalFees.plus(
+    event.params.total_refunds
+  );
+  vaultStats.lastUpdateTimestamp = event.block.timestamp;
+  vaultStats.save();
 }
