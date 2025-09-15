@@ -219,6 +219,8 @@ type VaultStats @entity(immutable: false) {
 type UserVaultStats @entity(immutable: false) {
   " User address + Vault address "
   id: ID!
+  userAddress: Bytes!
+  vaultAddress: Bytes!
   totalAssetsDeposited: BigInt!
   totalAssetsWithdrawn: BigInt!
   realizedPnlAssets: BigInt!

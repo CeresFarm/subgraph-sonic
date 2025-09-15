@@ -73,6 +73,8 @@ export function handleDeposit(event: DepositEvent): void {
       .concat("-")
       .concat(event.address.toHexString());
     let userVaultStats = getOrCreateUserVaultStats(id);
+    userVaultStats.userAddress = event.params.owner;
+    userVaultStats.vaultAddress = event.address;
     const totalSharesAfterDeposit = userVaultStats.currentShares.plus(
       event.params.shares
     );
