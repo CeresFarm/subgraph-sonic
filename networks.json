@@ -1,8 +1,8 @@
 {
-  "sonic": {
-    "VaultV3": {
-      "address": "0x8d6eD65d53a1587a98c0aE293768BC7bBce87463",
-      "startBlock": 46140944
+  "sonic-mainnet": {
+    "VaultFactory": {
+      "address": "0xA988271170293886868C06981b106b9beB96e450",
+      "startBlock": 46139232
     }
   }
 }

@@ -311,3 +311,12 @@ type UserVaultStats @entity(immutable: false) {
   avgPricePerShare: BigInt!
   lastUpdatedTimestamp: BigInt!
 }
+
+type NewVault @entity(immutable: true) {
+  id: Bytes!
+  vault_address: Bytes! # address
+  asset: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

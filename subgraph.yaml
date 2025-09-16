@@ -5,12 +5,56 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
+    name: VaultFactory
+    network: sonic-mainnet
+    source:
+      address: "0xA988271170293886868C06981b106b9beB96e450"
+      abi: VaultFactory
+      startBlock: 46139232
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - FactoryShutdown
+        - GovernanceTransferred
+        - NewVault
+        - RemovedCustomProtocolFee
+        - UpdateCustomProtocolFee
+        - UpdatePendingGovernance
+        - UpdateProtocolFeeBps
+        - UpdateProtocolFeeRecipient
+      abis:
+        - name: VaultFactory
+          file: ./abis/VaultFactory.json
+        - name: VaultV3
+          file: ./abis/VaultV3.json
+        - name: ITokenizedStrategy
+          file: ./abis/ITokenizedStrategy.json
+      eventHandlers:
+        - event: FactoryShutdown()
+          handler: handleFactoryShutdown
+        - event: GovernanceTransferred(indexed address,indexed address)
+          handler: handleGovernanceTransferred
+        - event: NewVault(indexed address,indexed address)
+          handler: handleNewVault
+        - event: RemovedCustomProtocolFee(indexed address)
+          handler: handleRemovedCustomProtocolFee
+        - event: UpdateCustomProtocolFee(indexed address,uint16)
+          handler: handleUpdateCustomProtocolFee
+        - event: UpdatePendingGovernance(indexed address)
+          handler: handleUpdatePendingGovernance
+        - event: UpdateProtocolFeeBps(uint16,uint16)
+          handler: handleUpdateProtocolFeeBps
+        - event: UpdateProtocolFeeRecipient(indexed address,indexed address)
+          handler: handleUpdateProtocolFeeRecipient
+      file: ./src/mappings/vault-factory.ts
+templates:
+  - kind: ethereum
     name: VaultV3
     network: sonic-mainnet
     source:
-      address: "0x8d6eD65d53a1587a98c0aE293768BC7bBce87463"
       abi: VaultV3
-      startBlock: 46140944
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9

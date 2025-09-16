@@ -8,7 +8,7 @@ export function getOrCreateVault(vaultAddress: Bytes): Vault {
   if (!vault) {
     vault = new Vault(vaultAddress);
 
-    const vaultContract = VaultV3.bind(vaultAddress);
+    const vaultContract = VaultV3.bind(Address.fromBytes(vaultAddress));
 
     const name = vaultContract.try_name();
     if (!name.reverted) {
