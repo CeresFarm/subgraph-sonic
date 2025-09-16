@@ -2,7 +2,6 @@ import {
   Deposit as DepositEvent,
   Withdraw as WithdrawEvent,
   Transfer as TransferEvent,
-  Approval as ApprovalEvent,
   StrategyChanged as StrategyChangedEvent,
   StrategyReported as StrategyReportedEvent,
   DebtUpdated as DebtUpdatedEvent,
@@ -23,10 +22,6 @@ import {
   Shutdown as ShutdownEvent,
 } from "../../generated/VaultV3/VaultV3";
 import {
-  Deposit,
-  Withdraw,
-  Transfer,
-  Approval,
   StrategyChanged,
   DebtUpdated,
   RoleSet,
@@ -54,7 +49,6 @@ import {
   getVaultPricePerShare,
 } from "../modules/vault";
 import { getOrCreateUserVaultStats } from "../modules/user";
-import { getOrCreateProtocolStats } from "../modules/protocol";
 import { ONE_HOUR_IN_SECONDS } from "../utils/constants";
 
 export function handleBlock(block: ethereum.Block): void {
@@ -74,20 +68,7 @@ export function handleBlock(block: ethereum.Block): void {
 }
 
 export function handleDeposit(event: DepositEvent): void {
-  let entity = new Deposit(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.sender = event.params.sender;
-  entity.owner = event.params.owner;
-  entity.assets = event.params.assets;
-  entity.shares = event.params.shares;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-  entity.save();
-
-  createTransactionHistory(event, null);
+  createTransactionHistory(event, null, null);
 
   // Update user vault stats
   {
@@ -120,22 +101,7 @@ export function handleDeposit(event: DepositEvent): void {
 }
 
 export function handleWithdraw(event: WithdrawEvent): void {
-  let entity = new Withdraw(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.sender = event.params.sender;
-  entity.receiver = event.params.receiver;
-  entity.owner = event.params.owner;
-  entity.assets = event.params.assets;
-  entity.shares = event.params.shares;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-
-  createTransactionHistory(null, event);
+  createTransactionHistory(null, event, null);
 
   // Update user vault stats
   {
@@ -172,33 +138,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
 }
 
 export function handleTransfer(event: TransferEvent): void {
-  let entity = new Transfer(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.sender = event.params.sender;
-  entity.receiver = event.params.receiver;
-  entity.value = event.params.value;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-}
-
-export function handleApproval(event: ApprovalEvent): void {
-  let entity = new Approval(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.owner = event.params.owner;
-  entity.spender = event.params.spender;
-  entity.value = event.params.value;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
+  createTransactionHistory(null, null, event);
 }
 
 export function handleStrategyChanged(event: StrategyChangedEvent): void {

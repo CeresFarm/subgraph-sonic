@@ -2,54 +2,12 @@ enum TransactionType {
   Invalid
   VaultDeposit
   VaultWithdraw
+  VaultTokenTransfer
 }
 
 enum StrategyType {
   Invalid
   CeresLeveragedStrategy
-}
-
-type Deposit @entity(immutable: true) {
-  id: Bytes!
-  sender: Bytes! # address
-  owner: Bytes! # address
-  assets: BigInt! # uint256
-  shares: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type Withdraw @entity(immutable: true) {
-  id: Bytes!
-  sender: Bytes! # address
-  receiver: Bytes! # address
-  owner: Bytes! # address
-  assets: BigInt! # uint256
-  shares: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type Transfer @entity(immutable: true) {
-  id: Bytes!
-  sender: Bytes! # address
-  receiver: Bytes! # address
-  value: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type Approval @entity(immutable: true) {
-  id: Bytes!
-  owner: Bytes! # address
-  spender: Bytes! # address
-  value: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
 }
 
 type StrategyChanged @entity(immutable: true) {

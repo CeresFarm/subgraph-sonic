@@ -17,4 +17,5 @@ export namespace TransactionType {
   export const Invalid = "Invalid";
   export const VaultDeposit = "VaultDeposit";
   export const VaultWithdraw = "VaultWithdraw";
+  export const VaultTokenTransfer = "VaultTokenTransfer";
 }
