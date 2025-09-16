@@ -58,13 +58,9 @@ import { getOrCreateProtocolStats } from "../modules/protocol";
 import { ONE_HOUR_IN_SECONDS } from "../utils/constants";
 
 export function handleBlock(block: ethereum.Block): void {
-  const protocolStats = getOrCreateProtocolStats();
-
-  const vaults = protocolStats.vaults;
-
-  for (let index = 0; index < vaults.length; index++) {
-    const vault = getOrCreateVault(vaults[index]);
-
+  const vaultAddress = dataSource.address();
+  let vault = getOrCreateVault(vaultAddress);
+  if (vault) {
     // Create a snapshot approximately every hour
     if (
       vault.lastSnapshotTimestamp.plus(BigInt.fromI32(ONE_HOUR_IN_SECONDS)) <
