@@ -320,3 +320,12 @@ type NewVault @entity(immutable: true) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+
+type NewStrategy @entity(immutable: true) {
+  id: Bytes!
+  strategy: Bytes! # address
+  asset: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

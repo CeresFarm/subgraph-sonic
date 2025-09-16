@@ -3,6 +3,9 @@
     "VaultFactory": {
       "address": "0xA988271170293886868C06981b106b9beB96e450",
       "startBlock": 46139232
+    },
+    "StrategyFactory": {
+      "address": "0xB6506994412c82a4D9A01aa9309F0b32f9e62bde"
     }
   }
 }

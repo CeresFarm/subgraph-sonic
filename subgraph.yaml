@@ -49,6 +49,26 @@ dataSources:
         - event: UpdateProtocolFeeRecipient(indexed address,indexed address)
           handler: handleUpdateProtocolFeeRecipient
       file: ./src/mappings/vault-factory.ts
+  - kind: ethereum
+    name: StrategyFactory
+    network: sonic-mainnet
+    source:
+      address: "0xB6506994412c82a4D9A01aa9309F0b32f9e62bde"
+      abi: StrategyFactory
+      startBlock: 46413564
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - NewStrategy
+      abis:
+        - name: StrategyFactory
+          file: ./abis/StrategyFactory.json
+      eventHandlers:
+        - event: NewStrategy(indexed address,indexed address)
+          handler: handleNewStrategy
+      file: ./src/strategy-factory.ts
 templates:
   - kind: ethereum
     name: VaultV3
