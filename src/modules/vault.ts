@@ -2,11 +2,13 @@ import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import { Vault, VaultStats } from "../../generated/schema";
 import { BIGINT_ZERO, ZERO_ADDRESS } from "../utils/constants";
 import { VaultV3 } from "../../generated/VaultV3/VaultV3";
+import { getOrCreateProtocolStats } from "./protocol";
 
 export function getOrCreateVault(vaultAddress: Bytes): Vault {
   let vault = Vault.load(vaultAddress);
   if (!vault) {
     vault = new Vault(vaultAddress);
+    vault.protocolStats = getOrCreateProtocolStats().id;  // Link to a singleton ProtocolStats entity with ID "0"
 
     const vaultContract = VaultV3.bind(Address.fromBytes(vaultAddress));
 

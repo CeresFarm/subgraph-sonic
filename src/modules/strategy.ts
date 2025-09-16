@@ -1,18 +1,22 @@
-import { Bytes } from "@graphprotocol/graph-ts";
+import { Address, Bytes } from "@graphprotocol/graph-ts";
 import { Strategy, Vault } from "../../generated/schema";
 import { BIGINT_ZERO, ZERO_ADDRESS } from "../utils/constants";
 import { getOrCreateVault } from "./vault";
 
 import { ITokenizedStrategy } from "../../generated/VaultV3/ITokenizedStrategy";
+import { getOrCreateProtocolStats } from "./protocol";
 
 export function getOrCreateStrategy(strategyAddress: Bytes): Strategy {
   let strategy = Strategy.load(strategyAddress);
   if (!strategy) {
     strategy = new Strategy(strategyAddress);
+    strategy.protocolStats = getOrCreateProtocolStats().id; // Link to a singleton ProtocolStats entity with ID "0"
 
     strategy.vault = getOrCreateVault(ZERO_ADDRESS).id;
 
-    const strategyContract = ITokenizedStrategy.bind(strategyAddress);
+    const strategyContract = ITokenizedStrategy.bind(
+      Address.fromBytes(strategyAddress)
+    );
 
     const name = strategyContract.try_name();
     if (!name.reverted) {

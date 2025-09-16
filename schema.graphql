@@ -199,6 +199,9 @@ type Vault @entity(immutable: false) {
   " Vault address "
   id: Bytes!
 
+  " Protocol stats - used to link the vault to the protocol entity "
+  protocolStats: ProtocolStats!
+
   " Vault name "
   name: String!
 
@@ -233,6 +236,9 @@ type Vault @entity(immutable: false) {
 type Strategy @entity(immutable: false) {
   " Strategy address"
   id: Bytes!
+
+  " Protocol stats - used to link the strategy to the protocol entity "
+  protocolStats: ProtocolStats!
 
   " Strategy name"
   name: String!
@@ -328,4 +334,10 @@ type NewStrategy @entity(immutable: true) {
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
+}
+
+type ProtocolStats @entity(immutable: false) {
+  id: ID!
+  vaults: [Vault!]! @derivedFrom(field: "protocolStats")
+  strategies: [Strategy!]! @derivedFrom(field: "protocolStats")
 }
