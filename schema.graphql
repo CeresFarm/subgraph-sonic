@@ -4,6 +4,11 @@ enum TransactionType {
   VaultWithdraw
 }
 
+enum StrategyType {
+  Invalid
+  CeresLeveragedStrategy
+}
+
 type Deposit @entity(immutable: true) {
   id: Bytes!
   sender: Bytes! # address
@@ -188,6 +193,83 @@ type Shutdown @entity(immutable: true) {
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
+}
+
+type Vault @entity(immutable: false) {
+  " Vault address "
+  id: Bytes!
+
+  " Vault name "
+  name: String!
+
+  " Vault symbol  "
+  symbol: String!
+
+  " Vault decimals "
+  decimals: Int!
+
+  " Underlying asset address "
+  asset: Bytes!
+
+  totalAssets: BigInt!
+
+  totalSupply: BigInt!
+
+  pricePerShare: BigInt!
+
+  depositLimit: BigInt!
+
+  strategies: [Strategy!]! @derivedFrom(field: "vault")
+
+  isShutdown: Boolean!
+
+  lastUpdatedTimestamp: BigInt!
+}
+
+"""
+ This strategy entity should only have the fields of the Yearn ERC4626 strategy contract "
+" Any custom strategy specific fields should go in a separate entity with the same address based on the strategyType "
+"""
+type Strategy @entity(immutable: false) {
+  " Strategy address"
+  id: Bytes!
+
+  " Strategy name"
+  name: String!
+
+  " Strategy symbol "
+  symbol: String!
+
+  " Strategy decimals "
+  decimals: Int!
+
+  " Strategy type "
+  strategyType: StrategyType!
+
+  " Vault the strategy is linked to "
+  vault: Vault!
+
+  totalAssets: BigInt!
+
+  totalSupply: BigInt!
+
+  pricePerShare: BigInt!
+
+  performanceFeeBps: Int!
+
+  protocolFeeBps: Int!
+
+  isActive: Boolean!
+
+  lastReportTimestamp: BigInt!
+
+  totalProfit: BigInt!
+
+  totalLoss: BigInt!
+
+  totalProtocolFees: BigInt!
+
+  totalPerformanceFees: BigInt!
 }
 
 type TransactionHistory @entity(immutable: true) {
