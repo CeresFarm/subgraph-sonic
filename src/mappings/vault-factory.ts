@@ -8,8 +8,9 @@ import {
   UpdateProtocolFeeBps as UpdateProtocolFeeBpsEvent,
   UpdateProtocolFeeRecipient as UpdateProtocolFeeRecipientEvent,
 } from "../../generated/VaultFactory/VaultFactory";
-import { NewVault, Vault } from "../../generated/schema";
+import { NewVault } from "../../generated/schema";
 import { VaultV3 as VaultV3Template } from "../../generated/templates";
+import { addVaultToProtocolStats } from "../modules/protocol";
 import { getOrCreateVault } from "../modules/vault";
 
 export function handleNewVault(event: NewVaultEvent): void {
@@ -30,6 +31,8 @@ export function handleNewVault(event: NewVaultEvent): void {
   // Create a new vault data source from Template
   getOrCreateVault(event.params.vault_address);
   VaultV3Template.create(event.params.vault_address);
+
+  addVaultToProtocolStats(event.params.vault_address);
 }
 
 export function handleFactoryShutdown(event: FactoryShutdownEvent): void {}

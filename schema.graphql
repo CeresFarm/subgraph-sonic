@@ -227,6 +227,8 @@ type Vault @entity(immutable: false) {
   isShutdown: Boolean!
 
   lastUpdatedTimestamp: BigInt!
+
+  lastSnapshotTimestamp: BigInt!
 }
 
 """
@@ -276,6 +278,8 @@ type Strategy @entity(immutable: false) {
   totalProtocolFees: BigInt!
 
   totalPerformanceFees: BigInt!
+
+  lastSnapshotTimestamp: BigInt!
 }
 
 type TransactionHistory @entity(immutable: true) {
@@ -338,6 +342,18 @@ type NewStrategy @entity(immutable: true) {
 
 type ProtocolStats @entity(immutable: false) {
   id: ID!
-  vaults: [Vault!]! @derivedFrom(field: "protocolStats")
-  strategies: [Strategy!]! @derivedFrom(field: "protocolStats")
+  vaults: [Bytes!]!
+  strategies: [Bytes!]!
+}
+
+type VaultSnapshotHourly @entity(immutable: true) {
+  " Vault address + timestamp "
+  id: ID!
+  vault: Vault!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  pricePerShare: BigInt!
+  totalAssets: BigInt!
+  depositApy: BigDecimal!
+  borrowApy: BigDecimal!
 }

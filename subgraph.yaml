@@ -65,6 +65,10 @@ dataSources:
       abis:
         - name: StrategyFactory
           file: ./abis/StrategyFactory.json
+        - name: VaultV3
+          file: ./abis/VaultV3.json
+        - name: ITokenizedStrategy
+          file: ./abis/ITokenizedStrategy.json
       eventHandlers:
         - event: NewStrategy(indexed address,indexed address)
           handler: handleNewStrategy
@@ -107,6 +111,10 @@ templates:
           file: ./abis/VaultV3.json
         - name: ITokenizedStrategy
           file: ./abis/ITokenizedStrategy.json
+        - name: PendleMarketV3
+          file: ./abis/PendleMarketV3.json
+        - name: SiloLens
+          file: ./abis/SiloLens.json
       eventHandlers:
         - event: Deposit(indexed address,indexed address,uint256,uint256)
           handler: handleDeposit
@@ -152,4 +160,9 @@ templates:
           handler: handleDebtPurchased
         - event: Shutdown()
           handler: handleShutdown
+      blockHandlers:
+        - handler: handleBlock
+          filter:
+            kind: polling
+            every: 1000
       file: ./src/mappings/vault-v3.ts

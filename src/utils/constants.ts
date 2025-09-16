@@ -10,6 +10,8 @@ export const ZERO_ADDRESS = Address.zero();
 
 export const BIGINT_ETHER = BigInt.fromI32(10).pow(18);
 
+export const ONE_HOUR_IN_SECONDS = 3600;
+export const ONE_DAY_IN_SECONDS = 86400;
 
 export namespace TransactionType {
   export const Invalid = "Invalid";

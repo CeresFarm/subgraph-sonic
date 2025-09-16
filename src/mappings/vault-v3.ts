@@ -45,10 +45,37 @@ import {
   DebtPurchased,
   Shutdown,
 } from "../../generated/schema";
-import { BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { BigInt, Bytes, dataSource, ethereum } from "@graphprotocol/graph-ts";
 import { createTransactionHistory } from "../modules/transaction";
-import { getOrCreateVaultStats, getVaultPricePerShare } from "../modules/vault";
+import {
+  createVaultSnapshotHourly,
+  getOrCreateVault,
+  getOrCreateVaultStats,
+  getVaultPricePerShare,
+} from "../modules/vault";
 import { getOrCreateUserVaultStats } from "../modules/user";
+import { getOrCreateProtocolStats } from "../modules/protocol";
+import { ONE_HOUR_IN_SECONDS } from "../utils/constants";
+
+export function handleBlock(block: ethereum.Block): void {
+  const protocolStats = getOrCreateProtocolStats();
+
+  const vaults = protocolStats.vaults;
+
+  for (let index = 0; index < vaults.length; index++) {
+    const vault = getOrCreateVault(vaults[index]);
+
+    // Create a snapshot approximately every hour
+    if (
+      vault.lastSnapshotTimestamp.plus(BigInt.fromI32(ONE_HOUR_IN_SECONDS)) <
+      block.timestamp
+    ) {
+      createVaultSnapshotHourly(vault.id, block.timestamp, block.number);
+      vault.lastSnapshotTimestamp = block.timestamp;
+      vault.save();
+    }
+  }
+}
 
 export function handleDeposit(event: DepositEvent): void {
   let entity = new Deposit(

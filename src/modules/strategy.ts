@@ -10,7 +10,8 @@ export function getOrCreateStrategy(strategyAddress: Bytes): Strategy {
   let strategy = Strategy.load(strategyAddress);
   if (!strategy) {
     strategy = new Strategy(strategyAddress);
-    strategy.protocolStats = getOrCreateProtocolStats().id; // Link to a singleton ProtocolStats entity with ID "0"
+    // Link to a singleton ProtocolStats entity with ID "0"
+    strategy.protocolStats = getOrCreateProtocolStats().id;
 
     strategy.vault = getOrCreateVault(ZERO_ADDRESS).id;
 
@@ -67,6 +68,7 @@ export function getOrCreateStrategy(strategyAddress: Bytes): Strategy {
     strategy.totalLoss = BIGINT_ZERO;
     strategy.totalProtocolFees = BIGINT_ZERO;
     strategy.totalPerformanceFees = BIGINT_ZERO;
+    strategy.lastSnapshotTimestamp = BIGINT_ZERO;
 
     strategy.save();
   }
