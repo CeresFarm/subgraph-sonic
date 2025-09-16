@@ -68,7 +68,7 @@ dataSources:
       eventHandlers:
         - event: NewStrategy(indexed address,indexed address)
           handler: handleNewStrategy
-      file: ./src/strategy-factory.ts
+      file: ./src/mappings/strategy-factory.ts
 templates:
   - kind: ethereum
     name: VaultV3
