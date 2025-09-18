@@ -43,28 +43,15 @@ import {
 import { BigInt, Bytes, dataSource, ethereum } from "@graphprotocol/graph-ts";
 import { createTransactionHistory } from "../modules/transaction";
 import {
-  createVaultSnapshotHourly,
-  getOrCreateVault,
+  createVaultSnapshot,
   getOrCreateVaultStats,
   getVaultPricePerShare,
 } from "../modules/vault";
 import { getOrCreateUserVaultStats } from "../modules/user";
-import { ONE_HOUR_IN_SECONDS } from "../utils/constants";
 
 export function handleBlock(block: ethereum.Block): void {
-  const vaultAddress = dataSource.address();
-  let vault = getOrCreateVault(vaultAddress);
-  if (vault) {
-    // Create a snapshot approximately every hour
-    if (
-      vault.lastSnapshotTimestamp.plus(BigInt.fromI32(ONE_HOUR_IN_SECONDS)) <
-      block.timestamp
-    ) {
-      createVaultSnapshotHourly(vault.id, block.timestamp, block.number);
-      vault.lastSnapshotTimestamp = block.timestamp;
-      vault.save();
-    }
-  }
+  // Creates hourly, daily, and weekly snapshots based on the timestamp
+  createVaultSnapshot(dataSource.address(), block.timestamp, block.number);
 }
 
 export function handleDeposit(event: DepositEvent): void {
@@ -72,11 +59,10 @@ export function handleDeposit(event: DepositEvent): void {
 
   // Update user vault stats
   {
-    const id = event.params.owner
-      .toHexString()
-      .concat("-")
-      .concat(event.address.toHexString());
-    let userVaultStats = getOrCreateUserVaultStats(id);
+    let userVaultStats = getOrCreateUserVaultStats(
+      event.params.owner,
+      event.address
+    );
     userVaultStats.userAddress = event.params.owner;
     userVaultStats.vaultAddress = event.address;
     const totalSharesAfterDeposit = userVaultStats.currentShares.plus(
@@ -105,11 +91,10 @@ export function handleWithdraw(event: WithdrawEvent): void {
 
   // Update user vault stats
   {
-    const id = event.params.owner
-      .toHexString()
-      .concat("-")
-      .concat(event.address.toHexString());
-    let userVaultStats = getOrCreateUserVaultStats(id);
+    let userVaultStats = getOrCreateUserVaultStats(
+      event.params.owner,
+      event.address
+    );
 
     const pricePerShare = getVaultPricePerShare(event.address);
     if (pricePerShare) {

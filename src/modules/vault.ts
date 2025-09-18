@@ -1,6 +1,14 @@
 import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
-import { Vault, VaultStats, VaultSnapshotHourly } from "../../generated/schema";
-import { BIGDECIMAL_ZERO, BIGINT_ZERO, ZERO_ADDRESS } from "../utils/constants";
+import { Vault, VaultStats, VaultSnapshot } from "../../generated/schema";
+import {
+  BIGDECIMAL_ZERO,
+  BIGINT_ZERO,
+  ONE_DAY_IN_SECONDS,
+  ONE_HOUR_IN_SECONDS,
+  ONE_WEEK_IN_SECONDS,
+  SnapshotType,
+  ZERO_ADDRESS,
+} from "../utils/constants";
 import { VaultV3 } from "../../generated/VaultV3/VaultV3";
 import { getOrCreateProtocolStats } from "./protocol";
 
@@ -54,7 +62,9 @@ export function getOrCreateVault(vaultAddress: Bytes): Vault {
     vault.depositLimit = BIGINT_ZERO;
     vault.isShutdown = false;
     vault.lastUpdatedTimestamp = BIGINT_ZERO;
-    vault.lastSnapshotTimestamp = BIGINT_ZERO;
+    vault.lastHourlySnapshot = BIGINT_ZERO;
+    vault.lastDailySnapshot = BIGINT_ZERO;
+    vault.lastWeeklySnapshot = BIGINT_ZERO;
 
     vault.save();
   }
@@ -87,39 +97,135 @@ export function getVaultPricePerShare(vaultAddress: Address): BigInt | null {
   }
 }
 
-export function createVaultSnapshotHourly(
+export function getVaultTotalAssets(vaultAddress: Address): BigInt | null {
+  const vaultContract = VaultV3.bind(vaultAddress);
+  const totalAssets = vaultContract.try_totalAssets();
+  if (!totalAssets.reverted) {
+    return totalAssets.value;
+  } else {
+    return null;
+  }
+}
+
+export function createVaultSnapshot(
   vaultAddress: Bytes,
   timestamp: BigInt,
   blockNumber: BigInt
 ): void {
-  const snapshot = new VaultSnapshotHourly(
-    vaultAddress.toHex() + "-" + timestamp.toString()
-  );
+  let vault = getOrCreateVault(vaultAddress);
 
-  snapshot.vault = getOrCreateVault(vaultAddress).id;
-  snapshot.timestamp = timestamp;
-  snapshot.blockNumber = blockNumber;
+  if (!vault) return;
 
-  // Fetch and store Vault contract specific data
-  const vaultContract = VaultV3.bind(Address.fromBytes(vaultAddress));
+  const baseSnapshotId = vaultAddress
+    .toHexString()
+    .concat(timestamp.toString())
+    .concat("-");
 
-  const pricePerShare = vaultContract.try_pricePerShare();
-  if (!pricePerShare.reverted) {
-    snapshot.pricePerShare = pricePerShare.value;
-  } else {
-    snapshot.pricePerShare = BIGINT_ZERO;
+  // Hourly snapshot
+  if (vault.lastHourlySnapshot.plus(ONE_HOUR_IN_SECONDS) < timestamp) {
+    vault.lastHourlySnapshot = timestamp;
+    vault.save();
+
+    const snapshot = new VaultSnapshot(
+      baseSnapshotId.concat(SnapshotType.Hourly)
+    );
+
+    snapshot.vault = vault.id;
+    snapshot.snapshotType = SnapshotType.Hourly;
+    snapshot.timestamp = timestamp;
+    snapshot.blockNumber = blockNumber;
+    snapshot.depositApy = BIGDECIMAL_ZERO;
+    snapshot.borrowApy = BIGDECIMAL_ZERO;
+
+    const pricePerShare = getVaultPricePerShare(
+      Address.fromBytes(vaultAddress)
+    );
+    if (pricePerShare) {
+      snapshot.pricePerShare = pricePerShare;
+    } else {
+      snapshot.pricePerShare = BIGINT_ZERO;
+    }
+
+    const totalAssets = getVaultTotalAssets(Address.fromBytes(vaultAddress));
+    if (totalAssets) {
+      snapshot.totalAssets = totalAssets;
+    } else {
+      snapshot.totalAssets = BIGINT_ZERO;
+    }
+
+    snapshot.save();
+    return;
   }
 
-  const totalAssets = vaultContract.try_totalAssets();
-  if (!totalAssets.reverted) {
-    snapshot.totalAssets = totalAssets.value;
-  } else {
-    snapshot.totalAssets = BIGINT_ZERO;
+  // Daily snapshot
+  if (vault.lastDailySnapshot.plus(ONE_DAY_IN_SECONDS) < timestamp) {
+    vault.lastDailySnapshot = timestamp;
+    vault.save();
+
+    const snapshot = new VaultSnapshot(
+      baseSnapshotId.concat(SnapshotType.Daily)
+    );
+
+    snapshot.vault = vault.id;
+    snapshot.snapshotType = SnapshotType.Daily;
+    snapshot.timestamp = timestamp;
+    snapshot.blockNumber = blockNumber;
+    snapshot.depositApy = BIGDECIMAL_ZERO;
+    snapshot.borrowApy = BIGDECIMAL_ZERO;
+
+    const pricePerShare = getVaultPricePerShare(
+      Address.fromBytes(vaultAddress)
+    );
+    if (pricePerShare) {
+      snapshot.pricePerShare = pricePerShare;
+    } else {
+      snapshot.pricePerShare = BIGINT_ZERO;
+    }
+
+    const totalAssets = getVaultTotalAssets(Address.fromBytes(vaultAddress));
+    if (totalAssets) {
+      snapshot.totalAssets = totalAssets;
+    } else {
+      snapshot.totalAssets = BIGINT_ZERO;
+    }
+
+    snapshot.save();
+    return;
   }
 
-  // @todo Fetch the values from other sources
-  snapshot.depositApy = BIGDECIMAL_ZERO;
-  snapshot.borrowApy = BIGDECIMAL_ZERO;
+  // Weekly snapshot
+  if (vault.lastWeeklySnapshot.plus(ONE_WEEK_IN_SECONDS) < timestamp) {
+    vault.lastWeeklySnapshot = timestamp;
+    vault.save();
 
-  snapshot.save();
+    const snapshot = new VaultSnapshot(
+      baseSnapshotId.concat(SnapshotType.Weekly)
+    );
+
+    snapshot.vault = vault.id;
+    snapshot.snapshotType = SnapshotType.Weekly;
+    snapshot.timestamp = timestamp;
+    snapshot.blockNumber = blockNumber;
+    snapshot.depositApy = BIGDECIMAL_ZERO;
+    snapshot.borrowApy = BIGDECIMAL_ZERO;
+
+    const pricePerShare = getVaultPricePerShare(
+      Address.fromBytes(vaultAddress)
+    );
+    if (pricePerShare) {
+      snapshot.pricePerShare = pricePerShare;
+    } else {
+      snapshot.pricePerShare = BIGINT_ZERO;
+    }
+
+    const totalAssets = getVaultTotalAssets(Address.fromBytes(vaultAddress));
+    if (totalAssets) {
+      snapshot.totalAssets = totalAssets;
+    } else {
+      snapshot.totalAssets = BIGINT_ZERO;
+    }
+
+    snapshot.save();
+    return;
+  }
 }

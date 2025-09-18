@@ -2,7 +2,14 @@ import { Bytes } from "@graphprotocol/graph-ts";
 import { UserVaultStats } from "../../generated/schema";
 import { BIGDECIMAL_ZERO, BIGINT_ZERO, ZERO_ADDRESS } from "../utils/constants";
 
-export function getOrCreateUserVaultStats(id: string): UserVaultStats {
+export function getOrCreateUserVaultStats(
+  userAddress: Bytes,
+  vaultAddress: Bytes
+): UserVaultStats {
+  const id = userAddress
+    .toHexString()
+    .concat("-")
+    .concat(vaultAddress.toHexString());
   let userVaultStats = UserVaultStats.load(id);
   if (!userVaultStats) {
     userVaultStats = new UserVaultStats(id);

@@ -10,6 +10,12 @@ enum StrategyType {
   CeresLeveragedStrategy
 }
 
+enum SnapshotType {
+  Hourly
+  Daily
+  Weekly
+}
+
 type StrategyChanged @entity(immutable: true) {
   id: Bytes!
   strategy: Bytes! # address
@@ -186,7 +192,11 @@ type Vault @entity(immutable: false) {
 
   lastUpdatedTimestamp: BigInt!
 
-  lastSnapshotTimestamp: BigInt!
+  lastHourlySnapshot: BigInt!
+
+  lastDailySnapshot: BigInt!
+
+  lastWeeklySnapshot: BigInt!
 }
 
 """
@@ -304,10 +314,11 @@ type ProtocolStats @entity(immutable: false) {
   strategies: [Bytes!]!
 }
 
-type VaultSnapshotHourly @entity(immutable: true) {
-  " Vault address + timestamp "
+type VaultSnapshot @entity(immutable: true) {
+  " Vault address + timestamp + logIndex"
   id: ID!
   vault: Vault!
+  snapshotType: SnapshotType!
   timestamp: BigInt!
   blockNumber: BigInt!
   pricePerShare: BigInt!
