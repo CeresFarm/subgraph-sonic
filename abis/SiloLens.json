@@ -1,0 +1,523 @@
+[
+  {
+    "type": "function",
+    "name": "borrowShare",
+    "inputs": [
+      {
+        "name": "_silo",
+        "type": "address",
+        "internalType": "contract ISilo"
+      },
+      { "name": "_borrower", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "calculateBorrowValue",
+    "inputs": [
+      {
+        "name": "_siloConfig",
+        "type": "address",
+        "internalType": "contract ISiloConfig"
+      },
+      { "name": "_borrower", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "calculateCollateralValue",
+    "inputs": [
+      {
+        "name": "_siloConfig",
+        "type": "address",
+        "internalType": "contract ISiloConfig"
+      },
+      { "name": "_borrower", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "collateralBalanceOfUnderlying",
+    "inputs": [
+      {
+        "name": "_silo",
+        "type": "address",
+        "internalType": "contract ISilo"
+      },
+      { "name": "_borrower", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "collateralOnlyDeposits",
+    "inputs": [
+      { "name": "_silo", "type": "address", "internalType": "contract ISilo" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "debtBalanceOfUnderlying",
+    "inputs": [
+      {
+        "name": "_silo",
+        "type": "address",
+        "internalType": "contract ISilo"
+      },
+      { "name": "_borrower", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getAPRs",
+    "inputs": [
+      {
+        "name": "_silos",
+        "type": "address[]",
+        "internalType": "contract ISilo[]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "aprs",
+        "type": "tuple[]",
+        "internalType": "struct ISiloLens.APR[]",
+        "components": [
+          {
+            "name": "depositAPR",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "borrowAPR",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getBorrowAPR",
+    "inputs": [
+      { "name": "_silo", "type": "address", "internalType": "contract ISilo" }
+    ],
+    "outputs": [
+      { "name": "borrowAPR", "type": "uint256", "internalType": "uint256" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getBorrowAmount",
+    "inputs": [
+      {
+        "name": "_silo",
+        "type": "address",
+        "internalType": "contract ISilo"
+      },
+      { "name": "_borrower", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getDepositAPR",
+    "inputs": [
+      { "name": "_silo", "type": "address", "internalType": "contract ISilo" }
+    ],
+    "outputs": [
+      { "name": "depositAPR", "type": "uint256", "internalType": "uint256" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getDepositAmount",
+    "inputs": [
+      {
+        "name": "_silo",
+        "type": "address",
+        "internalType": "contract ISilo"
+      },
+      { "name": "_borrower", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [
+      {
+        "name": "borrowerDeposits",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getFeesAndFeeReceivers",
+    "inputs": [
+      { "name": "_silo", "type": "address", "internalType": "contract ISilo" }
+    ],
+    "outputs": [
+      {
+        "name": "daoFeeReceiver",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "deployerFeeReceiver",
+        "type": "address",
+        "internalType": "address"
+      },
+      { "name": "daoFee", "type": "uint256", "internalType": "uint256" },
+      { "name": "deployerFee", "type": "uint256", "internalType": "uint256" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getInterestRateModel",
+    "inputs": [
+      { "name": "_silo", "type": "address", "internalType": "contract ISilo" }
+    ],
+    "outputs": [
+      { "name": "irm", "type": "address", "internalType": "address" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getLt",
+    "inputs": [
+      { "name": "_silo", "type": "address", "internalType": "contract ISilo" }
+    ],
+    "outputs": [{ "name": "lt", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getLtv",
+    "inputs": [
+      {
+        "name": "_silo",
+        "type": "address",
+        "internalType": "contract ISilo"
+      },
+      { "name": "_borrower", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [
+      { "name": "ltv", "type": "uint256", "internalType": "uint256" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMaxLtv",
+    "inputs": [
+      { "name": "_silo", "type": "address", "internalType": "contract ISilo" }
+    ],
+    "outputs": [
+      { "name": "maxLtv", "type": "uint256", "internalType": "uint256" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getModel",
+    "inputs": [
+      { "name": "_silo", "type": "address", "internalType": "contract ISilo" }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract IInterestRateModel"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getRawLiquidity",
+    "inputs": [
+      { "name": "_silo", "type": "address", "internalType": "contract ISilo" }
+    ],
+    "outputs": [
+      { "name": "liquidity", "type": "uint256", "internalType": "uint256" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getSiloIncentivesControllerProgramsNames",
+    "inputs": [
+      {
+        "name": "_siloIncentivesController",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "programsNames",
+        "type": "string[]",
+        "internalType": "string[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserLT",
+    "inputs": [
+      {
+        "name": "_silo",
+        "type": "address",
+        "internalType": "contract ISilo"
+      },
+      { "name": "_borrower", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [
+      { "name": "userLT", "type": "uint256", "internalType": "uint256" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserLTV",
+    "inputs": [
+      {
+        "name": "_silo",
+        "type": "address",
+        "internalType": "contract ISilo"
+      },
+      { "name": "_borrower", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [
+      { "name": "userLTV", "type": "uint256", "internalType": "uint256" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUsersHealth",
+    "inputs": [
+      {
+        "name": "_borrowers",
+        "type": "tuple[]",
+        "internalType": "struct ISiloLens.Borrower[]",
+        "components": [
+          {
+            "name": "silo",
+            "type": "address",
+            "internalType": "contract ISilo"
+          },
+          { "name": "wallet", "type": "address", "internalType": "address" }
+        ]
+      }
+    ],
+    "outputs": [
+      {
+        "name": "healths",
+        "type": "tuple[]",
+        "internalType": "struct ISiloLens.BorrowerHealth[]",
+        "components": [
+          { "name": "lt", "type": "uint256", "internalType": "uint256" },
+          { "name": "ltv", "type": "uint256", "internalType": "uint256" }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUsersLT",
+    "inputs": [
+      {
+        "name": "_borrowers",
+        "type": "tuple[]",
+        "internalType": "struct ISiloLens.Borrower[]",
+        "components": [
+          {
+            "name": "silo",
+            "type": "address",
+            "internalType": "contract ISilo"
+          },
+          { "name": "wallet", "type": "address", "internalType": "address" }
+        ]
+      }
+    ],
+    "outputs": [
+      { "name": "usersLTs", "type": "uint256[]", "internalType": "uint256[]" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUtilization",
+    "inputs": [
+      { "name": "_silo", "type": "address", "internalType": "contract ISilo" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "hasPosition",
+    "inputs": [
+      {
+        "name": "_siloConfig",
+        "type": "address",
+        "internalType": "contract ISiloConfig"
+      },
+      { "name": "_borrower", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "inDebt",
+    "inputs": [
+      {
+        "name": "_siloConfig",
+        "type": "address",
+        "internalType": "contract ISiloConfig"
+      },
+      { "name": "_borrower", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isSolvent",
+    "inputs": [
+      {
+        "name": "_silo",
+        "type": "address",
+        "internalType": "contract ISilo"
+      },
+      { "name": "_borrower", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "liquidity",
+    "inputs": [
+      { "name": "_silo", "type": "address", "internalType": "contract ISilo" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "maxLiquidation",
+    "inputs": [
+      {
+        "name": "_silo",
+        "type": "address",
+        "internalType": "contract ISilo"
+      },
+      {
+        "name": "_hook",
+        "type": "address",
+        "internalType": "contract IPartialLiquidation"
+      },
+      { "name": "_borrower", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [
+      {
+        "name": "collateralToLiquidate",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      { "name": "debtToRepay", "type": "uint256", "internalType": "uint256" },
+      { "name": "sTokenRequired", "type": "bool", "internalType": "bool" },
+      { "name": "fullLiquidation", "type": "bool", "internalType": "bool" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "protocolFees",
+    "inputs": [
+      { "name": "_silo", "type": "address", "internalType": "contract ISilo" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "totalBorrowAmount",
+    "inputs": [
+      { "name": "_silo", "type": "address", "internalType": "contract ISilo" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "totalBorrowAmountWithInterest",
+    "inputs": [
+      { "name": "_silo", "type": "address", "internalType": "contract ISilo" }
+    ],
+    "outputs": [
+      {
+        "name": "_totalBorrowAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "totalBorrowShare",
+    "inputs": [
+      { "name": "_silo", "type": "address", "internalType": "contract ISilo" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "totalDeposits",
+    "inputs": [
+      { "name": "_silo", "type": "address", "internalType": "contract ISilo" }
+    ],
+    "outputs": [
+      {
+        "name": "totalDeposits",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "totalDepositsWithInterest",
+    "inputs": [
+      { "name": "_silo", "type": "address", "internalType": "contract ISilo" }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  { "type": "error", "name": "InvalidAsset", "inputs": [] }
+]
