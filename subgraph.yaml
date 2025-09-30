@@ -5,12 +5,80 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
-    name: VaultV3
-    network: sonic
+    name: VaultFactory
+    network: sonic-mainnet
     source:
-      address: "0x8d6eD65d53a1587a98c0aE293768BC7bBce87463"
+      address: "0xA988271170293886868C06981b106b9beB96e450"
+      abi: VaultFactory
+      startBlock: 46139232
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - FactoryShutdown
+        - GovernanceTransferred
+        - NewVault
+        - RemovedCustomProtocolFee
+        - UpdateCustomProtocolFee
+        - UpdatePendingGovernance
+        - UpdateProtocolFeeBps
+        - UpdateProtocolFeeRecipient
+      abis:
+        - name: VaultFactory
+          file: ./abis/VaultFactory.json
+        - name: VaultV3
+          file: ./abis/VaultV3.json
+        - name: ITokenizedStrategy
+          file: ./abis/ITokenizedStrategy.json
+      eventHandlers:
+        - event: FactoryShutdown()
+          handler: handleFactoryShutdown
+        - event: GovernanceTransferred(indexed address,indexed address)
+          handler: handleGovernanceTransferred
+        - event: NewVault(indexed address,indexed address)
+          handler: handleNewVault
+        - event: RemovedCustomProtocolFee(indexed address)
+          handler: handleRemovedCustomProtocolFee
+        - event: UpdateCustomProtocolFee(indexed address,uint16)
+          handler: handleUpdateCustomProtocolFee
+        - event: UpdatePendingGovernance(indexed address)
+          handler: handleUpdatePendingGovernance
+        - event: UpdateProtocolFeeBps(uint16,uint16)
+          handler: handleUpdateProtocolFeeBps
+        - event: UpdateProtocolFeeRecipient(indexed address,indexed address)
+          handler: handleUpdateProtocolFeeRecipient
+      file: ./src/mappings/vault-factory.ts
+  - kind: ethereum
+    name: StrategyFactory
+    network: sonic-mainnet
+    source:
+      address: "0xB6506994412c82a4D9A01aa9309F0b32f9e62bde"
+      abi: StrategyFactory
+      startBlock: 46413564
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - NewStrategy
+      abis:
+        - name: StrategyFactory
+          file: ./abis/StrategyFactory.json
+        - name: VaultV3
+          file: ./abis/VaultV3.json
+        - name: ITokenizedStrategy
+          file: ./abis/ITokenizedStrategy.json
+      eventHandlers:
+        - event: NewStrategy(indexed address,indexed address)
+          handler: handleNewStrategy
+      file: ./src/mappings/strategy-factory.ts
+templates:
+  - kind: ethereum
+    name: VaultV3
+    network: sonic-mainnet
+    source:
       abi: VaultV3
-      startBlock: 46140944
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
@@ -41,6 +109,12 @@ dataSources:
       abis:
         - name: VaultV3
           file: ./abis/VaultV3.json
+        - name: ITokenizedStrategy
+          file: ./abis/ITokenizedStrategy.json
+        - name: PendleMarketV3
+          file: ./abis/PendleMarketV3.json
+        - name: SiloLens
+          file: ./abis/SiloLens.json
       eventHandlers:
         - event: Deposit(indexed address,indexed address,uint256,uint256)
           handler: handleDeposit
@@ -86,4 +160,9 @@ dataSources:
           handler: handleDebtPurchased
         - event: Shutdown()
           handler: handleShutdown
-      file: ./src/vault-v-3.ts
+      blockHandlers:
+        - handler: handleBlock
+          filter:
+            kind: polling
+            every: 1000
+      file: ./src/mappings/vault-v3.ts

@@ -4,7 +4,8 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.studio.thegraph.com/deploy/ ceres-sonic",
+    "deploy": "dotenv -- sh -c 'graph deploy ceres-alchemy --version-label $VERSION_LABEL --node https://subgraphs.alchemy.com/api/subgraphs/deploy --deploy-key $ALCH_DEPLOY_KEY --ipfs https://ipfs.satsuma.xyz'",
+    "deploy-graph": "graph deploy --node https://api.studio.thegraph.com/deploy/ ceres-sonic",
     "create-local": "graph create --node http://localhost:8020/ ceres-sonic",
     "remove-local": "graph remove --node http://localhost:8020/ ceres-sonic",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 ceres-sonic",
@@ -14,5 +15,8 @@
     "@graphprotocol/graph-cli": "0.96.0",
     "@graphprotocol/graph-ts": "0.37.0"
   },
-  "devDependencies": { "matchstick-as": "0.6.0" }
+  "devDependencies": {
+    "dotenv-cli": "^10.0.0",
+    "matchstick-as": "0.6.0"
+  }
 }
