@@ -17,8 +17,7 @@ import { BIGINT_ZERO, TransactionType } from "../utils/constants";
  */
 export function createTransactionHistory(
   depositEvent: DepositEvent | null,
-  withdrawEvent: WithdrawEvent | null,
-  transferEvent: TransferEvent | null
+  withdrawEvent: WithdrawEvent | null
 ): void {
   if (depositEvent) {
     // Return if the transaction was already added previously to avoid duplicates
@@ -55,24 +54,6 @@ export function createTransactionHistory(
     transaction.txHash = withdrawEvent.transaction.hash;
     transaction.blockNumber = withdrawEvent.block.number;
     transaction.blockTimestamp = withdrawEvent.block.timestamp;
-    transaction.save();
-  } else if (transferEvent) {
-    // Return if the transaction was already added previously to avoid duplicates
-    let transaction = TransactionHistory.load(transferEvent.transaction.hash);
-    if (transaction) return;
-
-    // Create a new transaction history record for the transfer event
-    transaction = new TransactionHistory(transferEvent.transaction.hash);
-    transaction.vaultAddress = transferEvent.address;
-    transaction.transactionType = TransactionType.VaultTokenTransfer;
-    transaction.sender = transferEvent.params.sender;
-    transaction.owner = transferEvent.params.sender;
-    transaction.receiver = transferEvent.params.receiver;
-    transaction.assets = BIGINT_ZERO; // Transfers do not involve assets directly
-    transaction.shares = transferEvent.params.value;
-    transaction.txHash = transferEvent.transaction.hash;
-    transaction.blockNumber = transferEvent.block.number;
-    transaction.blockTimestamp = transferEvent.block.timestamp;
     transaction.save();
   }
 }

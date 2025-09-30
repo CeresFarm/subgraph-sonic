@@ -1,4 +1,5 @@
 import {
+  Approval as ApprovalEvent,
   Deposit as DepositEvent,
   Withdraw as WithdrawEvent,
   Transfer as TransferEvent,
@@ -54,8 +55,10 @@ export function handleBlock(block: ethereum.Block): void {
   createVaultSnapshot(dataSource.address(), block.timestamp, block.number);
 }
 
+export function handleApproval(event: ApprovalEvent): void {}
+
 export function handleDeposit(event: DepositEvent): void {
-  createTransactionHistory(event, null, null);
+  createTransactionHistory(event, null);
 
   // Update user vault stats
   {
@@ -87,7 +90,7 @@ export function handleDeposit(event: DepositEvent): void {
 }
 
 export function handleWithdraw(event: WithdrawEvent): void {
-  createTransactionHistory(null, event, null);
+  createTransactionHistory(null, event);
 
   // Update user vault stats
   {
@@ -122,9 +125,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
   }
 }
 
-export function handleTransfer(event: TransferEvent): void {
-  createTransactionHistory(null, null, event);
-}
+export function handleTransfer(event: TransferEvent): void {}
 
 export function handleStrategyChanged(event: StrategyChangedEvent): void {
   let entity = new StrategyChanged(
