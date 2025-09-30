@@ -231,6 +231,12 @@ type Strategy @entity(immutable: false) {
 
   pricePerShare: BigInt!
 
+  " Total collateral in strategy collateral assets e.g PT-smsUsd "
+  totalCollateral: BigInt!
+
+  " Total debt of the strategy in borrow tokens e.g USDC "
+  totalDebt: BigInt!
+
   performanceFeeBps: Int!
 
   protocolFeeBps: Int!

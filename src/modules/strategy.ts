@@ -46,6 +46,8 @@ export function getOrCreateStrategy(strategyAddress: Bytes): Strategy {
     // Initialize financial metrics
     strategy.totalAssets = BIGINT_ZERO;
     strategy.totalSupply = BIGINT_ZERO;
+    strategy.totalCollateral = BIGINT_ZERO;
+    strategy.totalDebt = BIGINT_ZERO;
 
     const pricePerShare = strategyContract.try_pricePerShare();
     if (!pricePerShare.reverted) {

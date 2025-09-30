@@ -1,5 +1,6 @@
 import { NewStrategy as NewStrategyEvent } from "../../generated/StrategyFactory/StrategyFactory";
 import { NewStrategy } from "../../generated/schema";
+import { LeveragedStrategy as LeveragedStrategyTemplate } from "../../generated/templates";
 import { getOrCreateStrategy } from "../modules/strategy";
 
 export function handleNewStrategy(event: NewStrategyEvent): void {
@@ -18,5 +19,7 @@ export function handleNewStrategy(event: NewStrategyEvent): void {
     entity.save();
   }
 
+  // Create a new strategy data source from Template
   getOrCreateStrategy(event.params.strategy);
+  LeveragedStrategyTemplate.create(event.params.strategy);
 }
