@@ -60,6 +60,8 @@ export function getOrCreateVault(vaultAddress: Bytes): Vault {
     }
 
     vault.depositLimit = BIGINT_ZERO;
+    vault.totalAssetsDeposited = BIGINT_ZERO;
+    vault.totalAssetsWithdrawn = BIGINT_ZERO;
     vault.isShutdown = false;
     vault.lastUpdatedTimestamp = BIGINT_ZERO;
     vault.lastHourlySnapshot = BIGINT_ZERO;

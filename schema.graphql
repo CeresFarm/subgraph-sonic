@@ -186,6 +186,12 @@ type Vault @entity(immutable: false) {
 
   depositLimit: BigInt!
 
+  " Total amount of assets deposited to the vault over time"
+  totalAssetsDeposited: BigInt!
+
+  " Total amount of assets withdrawn from the vault over time"
+  totalAssetsWithdrawn: BigInt!
+
   strategies: [Strategy!]! @derivedFrom(field: "vault")
 
   isShutdown: Boolean!

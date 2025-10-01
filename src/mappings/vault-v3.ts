@@ -61,6 +61,11 @@ export function handleApproval(event: ApprovalEvent): void {}
 
 export function handleDeposit(event: DepositEvent): void {
   createTransactionHistory(event, null);
+  const vault = getOrCreateVault(event.address);
+  vault.totalAssetsDeposited = vault.totalAssetsDeposited.plus(
+    event.params.assets
+  );
+  vault.save();
 
   // Update user vault stats
   {
@@ -93,6 +98,12 @@ export function handleDeposit(event: DepositEvent): void {
 
 export function handleWithdraw(event: WithdrawEvent): void {
   createTransactionHistory(null, event);
+
+  const vault = getOrCreateVault(event.address);
+  vault.totalAssetsWithdrawn = vault.totalAssetsWithdrawn.plus(
+    event.params.assets
+  );
+  vault.save();
 
   // Update user vault stats
   {
