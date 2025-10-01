@@ -251,6 +251,7 @@ type Strategy @entity(immutable: false) {
 
   totalProtocolFees: BigInt!
 
+  " Total performance fees charged "
   totalPerformanceFees: BigInt!
 
   lastSnapshotTimestamp: BigInt!

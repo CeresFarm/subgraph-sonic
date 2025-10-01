@@ -195,3 +195,30 @@ templates:
         - event: StrategyRebalance()
           handler: handleStrategyRebalance
       file: ./src/mappings/leveraged-strategy.ts
+  - kind: ethereum
+    name: ITokenizedStrategy
+    network: sonic-mainnet
+    source:
+      abi: ITokenizedStrategy
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - Deposit
+        - Withdraw
+      abis:
+        - name: ITokenizedStrategy
+          file: ./abis/ITokenizedStrategy.json
+        - name: LeveragedStrategy
+          file: ./abis/LeveragedStrategy.json
+        - name: VaultV3
+          file: ./abis/VaultV3.json
+        - name: PendleMarketV3
+          file: ./abis/PendleMarketV3.json
+        - name: SiloLens
+          file: ./abis/SiloLens.json
+      eventHandlers:
+        - event: Reported(uint256,uint256,uint256,uint256)
+          handler: handleReported
+      file: ./src/mappings/tokenized-strategy.ts

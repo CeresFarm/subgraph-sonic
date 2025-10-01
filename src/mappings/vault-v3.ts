@@ -21,6 +21,7 @@ import {
   UpdateProfitMaxUnlockTime as UpdateProfitMaxUnlockTimeEvent,
   DebtPurchased as DebtPurchasedEvent,
   Shutdown as ShutdownEvent,
+  VaultV3,
 } from "../../generated/VaultV3/VaultV3";
 import {
   StrategyChanged,
@@ -45,6 +46,7 @@ import { BigInt, Bytes, dataSource, ethereum } from "@graphprotocol/graph-ts";
 import { createTransactionHistory } from "../modules/transaction";
 import {
   createVaultSnapshot,
+  getOrCreateVault,
   getOrCreateVaultStats,
   getVaultPricePerShare,
 } from "../modules/vault";
@@ -384,4 +386,20 @@ export function handleStrategyReported(event: StrategyReportedEvent): void {
   );
   vaultStats.lastUpdateTimestamp = event.block.timestamp;
   vaultStats.save();
+
+  const vault = getOrCreateVault(event.address);
+  const vaultContract = VaultV3.bind(event.address);
+
+  const totalAssetsRes = vaultContract.try_totalAssets();
+  if (!totalAssetsRes.reverted) {
+    vault.totalAssets = totalAssetsRes.value;
+  }
+
+  const pricePerShare = vaultContract.try_pricePerShare();
+  if (!pricePerShare.reverted) {
+    vault.pricePerShare = pricePerShare.value;
+  }
+
+  vault.lastUpdatedTimestamp = event.block.timestamp;
+  vault.save();
 }
