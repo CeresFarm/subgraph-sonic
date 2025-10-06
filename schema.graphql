@@ -339,3 +339,14 @@ type VaultSnapshot @entity(immutable: true) {
   depositApy: BigDecimal!
   borrowApy: BigDecimal!
 }
+
+type VaultStrategyReported @entity(immutable: true) {
+  " Vault address + strategy address + txHash "
+  id: ID!
+  vault: Vault!
+  strategy: Strategy!
+  gain: BigInt!
+  loss: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+}

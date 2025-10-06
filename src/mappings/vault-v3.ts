@@ -41,6 +41,7 @@ import {
   UpdateProfitMaxUnlockTime,
   DebtPurchased,
   Shutdown,
+  VaultStrategyReported,
 } from "../../generated/schema";
 import { BigInt, Bytes, dataSource, ethereum } from "@graphprotocol/graph-ts";
 import { createTransactionHistory } from "../modules/transaction";
@@ -51,6 +52,7 @@ import {
   getVaultPricePerShare,
 } from "../modules/vault";
 import { getOrCreateUserVaultStats } from "../modules/user";
+import { getOrCreateStrategy } from "../modules/strategy";
 
 export function handleBlock(block: ethereum.Block): void {
   // Creates hourly, daily, and weekly snapshots based on the timestamp
@@ -413,4 +415,20 @@ export function handleStrategyReported(event: StrategyReportedEvent): void {
 
   vault.lastUpdatedTimestamp = event.block.timestamp;
   vault.save();
+
+  // Store the strategy reports
+  const id = event.address
+    .toHexString()
+    .concat(event.params.strategy.toHexString())
+    .concat(event.transaction.hash.toHexString());
+  const vaultStrategyReported = new VaultStrategyReported(id);
+  vaultStrategyReported.vault = getOrCreateVault(event.address).id;
+  vaultStrategyReported.strategy = getOrCreateStrategy(
+    event.params.strategy
+  ).id;
+  vaultStrategyReported.gain = event.params.gain;
+  vaultStrategyReported.loss = event.params.loss;
+  vaultStrategyReported.timestamp = event.block.timestamp;
+  vaultStrategyReported.txHash = event.transaction.hash;
+  vaultStrategyReported.save();
 }
