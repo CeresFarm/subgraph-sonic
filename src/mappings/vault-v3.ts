@@ -53,6 +53,7 @@ import {
 } from "../modules/vault";
 import { getOrCreateUserVaultStats } from "../modules/user";
 import { getOrCreateStrategy } from "../modules/strategy";
+import { BIGINT_ZERO } from "../utils/constants";
 
 export function handleBlock(block: ethereum.Block): void {
   // Creates hourly, daily, and weekly snapshots based on the timestamp
@@ -81,7 +82,7 @@ export function handleDeposit(event: DepositEvent): void {
       event.params.shares
     );
     const pricePerShare = getVaultPricePerShare(event.address);
-    if (pricePerShare) {
+    if (pricePerShare && pricePerShare.notEqual(BIGINT_ZERO)) {
       // If the pricePerShare value is received from the contract, calculate the avgPricePerShare of user
       // Avg PricePerShare = (Prev shares * Prev Avg PPS + Deposited Shares * Current PPS) / totalShares
       const numerator = userVaultStats.avgPricePerShare
@@ -115,7 +116,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
     );
 
     const pricePerShare = getVaultPricePerShare(event.address);
-    if (pricePerShare) {
+    if (pricePerShare && pricePerShare.notEqual(BIGINT_ZERO)) {
       const vaultDecimalsFactor = BigInt.fromI32(10).pow(18); // @todo Replace18 with vault decimals to generalize fn
       // Calculate realized profits/loss
       const pnlAssets = pricePerShare
@@ -416,7 +417,7 @@ export function handleStrategyReported(event: StrategyReportedEvent): void {
   vault.lastUpdatedTimestamp = event.block.timestamp;
   vault.save();
 
-  // Store the strategy reports
+  // Store the strategy reports of the vault
   const id = event.address
     .toHexString()
     .concat(event.params.strategy.toHexString())
