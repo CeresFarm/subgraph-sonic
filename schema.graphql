@@ -349,4 +349,8 @@ type VaultStrategyReported @entity(immutable: true) {
   loss: BigInt!
   timestamp: BigInt!
   txHash: Bytes!
+  vaultPricePerShare: BigInt!
+  strategyPricePerShare: BigInt!
+  ptPriceInAsset: BigInt!
+  assetPriceInBorrowToken: BigInt!
 }

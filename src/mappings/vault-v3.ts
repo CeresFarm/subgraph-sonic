@@ -52,7 +52,12 @@ import {
   getVaultPricePerShare,
 } from "../modules/vault";
 import { getOrCreateUserVaultStats } from "../modules/user";
-import { getOrCreateStrategy } from "../modules/strategy";
+import {
+  getAssetPriceInBorrowToken,
+  getOrCreateStrategy,
+  getPtPriceInAsset,
+  getStrategyPricePerShare,
+} from "../modules/strategy";
 import { BIGINT_ZERO } from "../utils/constants";
 
 export function handleBlock(block: ethereum.Block): void {
@@ -431,5 +436,25 @@ export function handleStrategyReported(event: StrategyReportedEvent): void {
   vaultStrategyReported.loss = event.params.loss;
   vaultStrategyReported.timestamp = event.block.timestamp;
   vaultStrategyReported.txHash = event.transaction.hash;
+
+  if (!pricePerShare.reverted) {
+    vaultStrategyReported.vaultPricePerShare = pricePerShare.value;
+  } else {
+    vaultStrategyReported.vaultPricePerShare = BIGINT_ZERO;
+  }
+
+  vaultStrategyReported.strategyPricePerShare = getStrategyPricePerShare(
+    event.params.strategy
+  );
+
+  // @todo Replace/implement separate logic to identify type of strategy
+  vaultStrategyReported.ptPriceInAsset = getPtPriceInAsset(
+    event.params.strategy
+  );
+
+  vaultStrategyReported.assetPriceInBorrowToken = getAssetPriceInBorrowToken(
+    event.params.strategy
+  );
+
   vaultStrategyReported.save();
 }

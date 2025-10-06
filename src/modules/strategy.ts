@@ -1,10 +1,11 @@
-import { Address, Bytes } from "@graphprotocol/graph-ts";
-import { Strategy, Vault } from "../../generated/schema";
+import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
+import { Strategy } from "../../generated/schema";
 import { BIGINT_ZERO, ZERO_ADDRESS } from "../utils/constants";
 import { getOrCreateVault } from "./vault";
 
 import { ITokenizedStrategy } from "../../generated/VaultV3/ITokenizedStrategy";
 import { getOrCreateProtocolStats } from "./protocol";
+import { LeveragedStrategy } from "../../generated/templates/LeveragedStrategy/LeveragedStrategy";
 
 export function getOrCreateStrategy(strategyAddress: Bytes): Strategy {
   let strategy = Strategy.load(strategyAddress);
@@ -75,4 +76,51 @@ export function getOrCreateStrategy(strategyAddress: Bytes): Strategy {
     strategy.save();
   }
   return strategy;
+}
+
+export function getStrategyPricePerShare(strategyAddress: Address): BigInt {
+  const strategyContract = ITokenizedStrategy.bind(strategyAddress);
+  const pricePerShare = strategyContract.try_pricePerShare();
+  if (!pricePerShare.reverted) {
+    return pricePerShare.value;
+  } else {
+    return BIGINT_ZERO;
+  }
+}
+
+// NOTE: This is a leveraged strategy specific function. Make sure to only call it for leveraged strategies.
+export function getPtPriceInAsset(strategyAddress: Address): BigInt {
+  const strategy = getOrCreateStrategy(strategyAddress);
+  const oneUnit = BigInt.fromI32(10).pow(strategy.decimals as u8);
+  if (oneUnit.equals(BIGINT_ZERO)) {
+    return BIGINT_ZERO;
+  }
+
+  // Convert one unit of pt token to assets
+  const strategyContract = LeveragedStrategy.bind(strategyAddress);
+  const ptPriceInAsset = strategyContract.try_convertPtToAsset(oneUnit);
+  if (!ptPriceInAsset.reverted) {
+    return ptPriceInAsset.value;
+  } else {
+    return BIGINT_ZERO;
+  }
+}
+
+// NOTE: This is a leveraged strategy specific function. Make sure to only call it for leveraged strategies.
+export function getAssetPriceInBorrowToken(strategyAddress: Address): BigInt {
+  const strategy = getOrCreateStrategy(strategyAddress);
+  const oneUnit = BigInt.fromI32(10).pow(strategy.decimals as u8);
+  if (oneUnit.equals(BIGINT_ZERO)) {
+    return BIGINT_ZERO;
+  }
+
+  // Convert one unit of pt token to assets
+  const strategyContract = LeveragedStrategy.bind(strategyAddress);
+  const assetPriceInBorrowToken =
+    strategyContract.try_convertAssetToBorrowToken(oneUnit);
+  if (!assetPriceInBorrowToken.reverted) {
+    return assetPriceInBorrowToken.value;
+  } else {
+    return BIGINT_ZERO;
+  }
 }

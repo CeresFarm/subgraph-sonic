@@ -111,6 +111,8 @@ templates:
           file: ./abis/VaultV3.json
         - name: ITokenizedStrategy
           file: ./abis/ITokenizedStrategy.json
+        - name: LeveragedStrategy
+          file: ./abis/LeveragedStrategy.json
         - name: PendleMarketV3
           file: ./abis/PendleMarketV3.json
         - name: SiloLens
