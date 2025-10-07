@@ -24,7 +24,7 @@ import {
   VaultV3,
 } from "../../generated/VaultV3/VaultV3";
 import { VaultStrategyReported } from "../../generated/schema";
-import { BigInt, dataSource, ethereum } from "@graphprotocol/graph-ts";
+import { Address, BigInt, dataSource, ethereum } from "@graphprotocol/graph-ts";
 import { createTransactionHistory } from "../modules/transaction";
 import {
   createVaultSnapshot,
@@ -50,10 +50,19 @@ export function handleApproval(event: ApprovalEvent): void {}
 
 export function handleDeposit(event: DepositEvent): void {
   createTransactionHistory(event, null);
+  const vault = getOrCreateVault(event.address);
 
   const pricePerShare = getVaultPricePerShare(event.address);
 
-  const vault = getOrCreateVault(event.address);
+  // Update pricePerShareUnderlying if the default strategy is active
+  const defaultStrategy = vault.strategies.load().at(0);
+  if (defaultStrategy.isActive) {
+    vault.pricePerShareUnderlying = convertAssetsToBorrowToken(
+      Address.fromBytes(defaultStrategy.id),
+      pricePerShare
+    );
+  }
+
   vault.pricePerShare = pricePerShare;
   vault.totalAssetsDeposited = vault.totalAssetsDeposited.plus(
     event.params.assets
@@ -90,10 +99,19 @@ export function handleDeposit(event: DepositEvent): void {
 
 export function handleWithdraw(event: WithdrawEvent): void {
   createTransactionHistory(null, event);
+  const vault = getOrCreateVault(event.address);
 
   const pricePerShare = getVaultPricePerShare(event.address);
 
-  const vault = getOrCreateVault(event.address);
+  // Update pricePerShareUnderlying if the default strategy is active
+  const defaultStrategy = vault.strategies.load().at(0);
+  if (defaultStrategy.isActive) {
+    vault.pricePerShareUnderlying = convertAssetsToBorrowToken(
+      Address.fromBytes(defaultStrategy.id),
+      pricePerShare
+    );
+  }
+
   vault.pricePerShare = pricePerShare;
   vault.totalAssetsWithdrawn = vault.totalAssetsWithdrawn.plus(
     event.params.assets
