@@ -23,27 +23,8 @@ import {
   Shutdown as ShutdownEvent,
   VaultV3,
 } from "../../generated/VaultV3/VaultV3";
-import {
-  StrategyChanged,
-  DebtUpdated,
-  RoleSet,
-  UpdateFutureRoleManager,
-  UpdateRoleManager,
-  UpdateAccountant,
-  UpdateDepositLimitModule,
-  UpdateWithdrawLimitModule,
-  UpdateDefaultQueue,
-  UpdateUseDefaultQueue,
-  UpdateAutoAllocate,
-  UpdatedMaxDebtForStrategy,
-  UpdateDepositLimit,
-  UpdateMinimumTotalIdle,
-  UpdateProfitMaxUnlockTime,
-  DebtPurchased,
-  Shutdown,
-  VaultStrategyReported,
-} from "../../generated/schema";
-import { BigInt, Bytes, dataSource, ethereum } from "@graphprotocol/graph-ts";
+import { VaultStrategyReported } from "../../generated/schema";
+import { BigInt, dataSource, ethereum } from "@graphprotocol/graph-ts";
 import { createTransactionHistory } from "../modules/transaction";
 import {
   createVaultSnapshot,
@@ -154,248 +135,59 @@ export function handleWithdraw(event: WithdrawEvent): void {
 
 export function handleTransfer(event: TransferEvent): void {}
 
-export function handleStrategyChanged(event: StrategyChangedEvent): void {
-  let entity = new StrategyChanged(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.strategy = event.params.strategy;
-  entity.change_type = event.params.change_type;
+export function handleStrategyChanged(event: StrategyChangedEvent): void {}
 
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
+export function handleDebtUpdated(event: DebtUpdatedEvent): void {}
 
-  entity.save();
-}
-
-export function handleDebtUpdated(event: DebtUpdatedEvent): void {
-  let entity = new DebtUpdated(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.strategy = event.params.strategy;
-  entity.current_debt = event.params.current_debt;
-  entity.new_debt = event.params.new_debt;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-}
-
-export function handleRoleSet(event: RoleSetEvent): void {
-  let entity = new RoleSet(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.account = event.params.account;
-  entity.role = event.params.role;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-}
+export function handleRoleSet(event: RoleSetEvent): void {}
 
 export function handleUpdateFutureRoleManager(
   event: UpdateFutureRoleManagerEvent
-): void {
-  let entity = new UpdateFutureRoleManager(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.future_role_manager = event.params.future_role_manager;
+): void {}
 
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
+export function handleUpdateRoleManager(event: UpdateRoleManagerEvent): void {}
 
-  entity.save();
-}
-
-export function handleUpdateRoleManager(event: UpdateRoleManagerEvent): void {
-  let entity = new UpdateRoleManager(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.role_manager = event.params.role_manager;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-}
-
-export function handleUpdateAccountant(event: UpdateAccountantEvent): void {
-  let entity = new UpdateAccountant(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.accountant = event.params.accountant;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-}
+export function handleUpdateAccountant(event: UpdateAccountantEvent): void {}
 
 export function handleUpdateDepositLimitModule(
   event: UpdateDepositLimitModuleEvent
-): void {
-  let entity = new UpdateDepositLimitModule(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.deposit_limit_module = event.params.deposit_limit_module;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-}
+): void {}
 
 export function handleUpdateWithdrawLimitModule(
   event: UpdateWithdrawLimitModuleEvent
-): void {
-  let entity = new UpdateWithdrawLimitModule(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.withdraw_limit_module = event.params.withdraw_limit_module;
+): void {}
 
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-}
-
-export function handleUpdateDefaultQueue(event: UpdateDefaultQueueEvent): void {
-  let entity = new UpdateDefaultQueue(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.new_default_queue = changetype<Bytes[]>(
-    event.params.new_default_queue
-  );
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-}
+export function handleUpdateDefaultQueue(
+  event: UpdateDefaultQueueEvent
+): void {}
 
 export function handleUpdateUseDefaultQueue(
   event: UpdateUseDefaultQueueEvent
-): void {
-  let entity = new UpdateUseDefaultQueue(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.use_default_queue = event.params.use_default_queue;
+): void {}
 
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-}
-
-export function handleUpdateAutoAllocate(event: UpdateAutoAllocateEvent): void {
-  let entity = new UpdateAutoAllocate(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.auto_allocate = event.params.auto_allocate;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-}
+export function handleUpdateAutoAllocate(
+  event: UpdateAutoAllocateEvent
+): void {}
 
 export function handleUpdatedMaxDebtForStrategy(
   event: UpdatedMaxDebtForStrategyEvent
-): void {
-  let entity = new UpdatedMaxDebtForStrategy(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.sender = event.params.sender;
-  entity.strategy = event.params.strategy;
-  entity.new_debt = event.params.new_debt;
+): void {}
 
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-}
-
-export function handleUpdateDepositLimit(event: UpdateDepositLimitEvent): void {
-  let entity = new UpdateDepositLimit(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.deposit_limit = event.params.deposit_limit;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-}
+export function handleUpdateDepositLimit(
+  event: UpdateDepositLimitEvent
+): void {}
 
 export function handleUpdateMinimumTotalIdle(
   event: UpdateMinimumTotalIdleEvent
-): void {
-  let entity = new UpdateMinimumTotalIdle(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.minimum_total_idle = event.params.minimum_total_idle;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-}
+): void {}
 
 export function handleUpdateProfitMaxUnlockTime(
   event: UpdateProfitMaxUnlockTimeEvent
-): void {
-  let entity = new UpdateProfitMaxUnlockTime(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.profit_max_unlock_time = event.params.profit_max_unlock_time;
+): void {}
 
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
+export function handleDebtPurchased(event: DebtPurchasedEvent): void {}
 
-  entity.save();
-}
-
-export function handleDebtPurchased(event: DebtPurchasedEvent): void {
-  let entity = new DebtPurchased(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.strategy = event.params.strategy;
-  entity.amount = event.params.amount;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-}
-
-export function handleShutdown(event: ShutdownEvent): void {
-  let entity = new Shutdown(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-}
+export function handleShutdown(event: ShutdownEvent): void {}
 
 /////////////////////////////////////////////////////////////////
 
