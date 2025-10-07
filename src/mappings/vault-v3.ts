@@ -467,5 +467,7 @@ export function handleStrategyReported(event: StrategyReportedEvent): void {
     event.params.strategy
   );
 
+  vaultStrategyReported.pricePerShareUnderlying = vault.pricePerShareUnderlying;
+
   vaultStrategyReported.save();
 }

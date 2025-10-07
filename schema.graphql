@@ -358,4 +358,7 @@ type VaultStrategyReported @entity(immutable: true) {
   strategyPricePerShare: BigInt!
   ptPriceInAsset: BigInt!
   assetPriceInBorrowToken: BigInt!
+
+  " Price per share in the underlying asset "
+  pricePerShareUnderlying: BigInt!
 }
