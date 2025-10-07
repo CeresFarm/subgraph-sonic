@@ -182,9 +182,19 @@ type Vault @entity(immutable: false) {
 
   totalSupply: BigInt!
 
+  " Price per share of the vault's ERC4626 token "
   pricePerShare: BigInt!
 
+  " Price per share in the underlying asset "
+  pricePerShareUnderlying: BigInt!
+
   depositLimit: BigInt!
+
+  " Total amount of assets deposited to the vault over time"
+  totalAssetsDeposited: BigInt!
+
+  " Total amount of assets withdrawn from the vault over time"
+  totalAssetsWithdrawn: BigInt!
 
   strategies: [Strategy!]! @derivedFrom(field: "vault")
 
@@ -229,7 +239,14 @@ type Strategy @entity(immutable: false) {
 
   totalSupply: BigInt!
 
+  " Price per share of the strategy's ERC4626 token "
   pricePerShare: BigInt!
+
+  " Total collateral in strategy collateral assets e.g PT-smsUsd "
+  totalCollateral: BigInt!
+
+  " Total debt of the strategy in borrow tokens e.g USDC "
+  totalDebt: BigInt!
 
   performanceFeeBps: Int!
 
@@ -245,6 +262,7 @@ type Strategy @entity(immutable: false) {
 
   totalProtocolFees: BigInt!
 
+  " Total performance fees charged "
   totalPerformanceFees: BigInt!
 
   lastSnapshotTimestamp: BigInt!
@@ -322,7 +340,26 @@ type VaultSnapshot @entity(immutable: true) {
   timestamp: BigInt!
   blockNumber: BigInt!
   pricePerShare: BigInt!
+  pricePerShareUnderlying: BigInt!
   totalAssets: BigInt!
   depositApy: BigDecimal!
   borrowApy: BigDecimal!
+}
+
+type VaultStrategyReported @entity(immutable: true) {
+  " Vault address + strategy address + txHash "
+  id: ID!
+  vault: Vault!
+  strategy: Strategy!
+  gain: BigInt!
+  loss: BigInt!
+  timestamp: BigInt!
+  txHash: Bytes!
+  vaultPricePerShare: BigInt!
+  strategyPricePerShare: BigInt!
+  ptPriceInAsset: BigInt!
+  assetPriceInBorrowToken: BigInt!
+
+  " Price per share in the underlying asset "
+  pricePerShareUnderlying: BigInt!
 }
