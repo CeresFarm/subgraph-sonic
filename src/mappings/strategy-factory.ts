@@ -1,7 +1,10 @@
 import { NewStrategy as NewStrategyEvent } from "../../generated/StrategyFactory/StrategyFactory";
 import { NewStrategy } from "../../generated/schema";
 import { getOrCreateStrategy } from "../modules/strategy";
-
+import {
+  ITokenizedStrategy as ITokenizedStrategyTemplate,
+  LeveragedStrategy as LeveragedStrategyTemplate,
+} from "../../generated/templates";
 export function handleNewStrategy(event: NewStrategyEvent): void {
   {
     // Store immutable entity for historical reference
@@ -18,5 +21,11 @@ export function handleNewStrategy(event: NewStrategyEvent): void {
     entity.save();
   }
 
+  // Create a new strategy data source from Template
   getOrCreateStrategy(event.params.strategy);
+  LeveragedStrategyTemplate.create(event.params.strategy);
+
+  getOrCreateStrategy(event.params.strategy);
+  LeveragedStrategyTemplate.create(event.params.strategy);
+  ITokenizedStrategyTemplate.create(event.params.strategy);
 }

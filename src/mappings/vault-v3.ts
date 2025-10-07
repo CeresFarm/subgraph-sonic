@@ -21,6 +21,7 @@ import {
   UpdateProfitMaxUnlockTime as UpdateProfitMaxUnlockTimeEvent,
   DebtPurchased as DebtPurchasedEvent,
   Shutdown as ShutdownEvent,
+  VaultV3,
 } from "../../generated/VaultV3/VaultV3";
 import {
   StrategyChanged,
@@ -40,15 +41,25 @@ import {
   UpdateProfitMaxUnlockTime,
   DebtPurchased,
   Shutdown,
+  VaultStrategyReported,
 } from "../../generated/schema";
 import { BigInt, Bytes, dataSource, ethereum } from "@graphprotocol/graph-ts";
 import { createTransactionHistory } from "../modules/transaction";
 import {
   createVaultSnapshot,
+  getOrCreateVault,
   getOrCreateVaultStats,
   getVaultPricePerShare,
 } from "../modules/vault";
 import { getOrCreateUserVaultStats } from "../modules/user";
+import {
+  convertAssetsToBorrowToken,
+  getAssetPriceInBorrowToken,
+  getOrCreateStrategy,
+  getPtPriceInAsset,
+  getStrategyPricePerShare,
+} from "../modules/strategy";
+import { BIGINT_ZERO } from "../utils/constants";
 
 export function handleBlock(block: ethereum.Block): void {
   // Creates hourly, daily, and weekly snapshots based on the timestamp
@@ -59,6 +70,15 @@ export function handleApproval(event: ApprovalEvent): void {}
 
 export function handleDeposit(event: DepositEvent): void {
   createTransactionHistory(event, null);
+
+  const pricePerShare = getVaultPricePerShare(event.address);
+
+  const vault = getOrCreateVault(event.address);
+  vault.pricePerShare = pricePerShare;
+  vault.totalAssetsDeposited = vault.totalAssetsDeposited.plus(
+    event.params.assets
+  );
+  vault.save();
 
   // Update user vault stats
   {
@@ -71,8 +91,7 @@ export function handleDeposit(event: DepositEvent): void {
     const totalSharesAfterDeposit = userVaultStats.currentShares.plus(
       event.params.shares
     );
-    const pricePerShare = getVaultPricePerShare(event.address);
-    if (pricePerShare) {
+    if (pricePerShare && pricePerShare.notEqual(BIGINT_ZERO)) {
       // If the pricePerShare value is received from the contract, calculate the avgPricePerShare of user
       // Avg PricePerShare = (Prev shares * Prev Avg PPS + Deposited Shares * Current PPS) / totalShares
       const numerator = userVaultStats.avgPricePerShare
@@ -92,6 +111,15 @@ export function handleDeposit(event: DepositEvent): void {
 export function handleWithdraw(event: WithdrawEvent): void {
   createTransactionHistory(null, event);
 
+  const pricePerShare = getVaultPricePerShare(event.address);
+
+  const vault = getOrCreateVault(event.address);
+  vault.pricePerShare = pricePerShare;
+  vault.totalAssetsWithdrawn = vault.totalAssetsWithdrawn.plus(
+    event.params.assets
+  );
+  vault.save();
+
   // Update user vault stats
   {
     let userVaultStats = getOrCreateUserVaultStats(
@@ -99,8 +127,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
       event.address
     );
 
-    const pricePerShare = getVaultPricePerShare(event.address);
-    if (pricePerShare) {
+    if (pricePerShare && pricePerShare.notEqual(BIGINT_ZERO)) {
       const vaultDecimalsFactor = BigInt.fromI32(10).pow(18); // @todo Replace18 with vault decimals to generalize fn
       // Calculate realized profits/loss
       const pnlAssets = pricePerShare
@@ -384,4 +411,63 @@ export function handleStrategyReported(event: StrategyReportedEvent): void {
   );
   vaultStats.lastUpdateTimestamp = event.block.timestamp;
   vaultStats.save();
+
+  const vault = getOrCreateVault(event.address);
+  const vaultContract = VaultV3.bind(event.address);
+
+  const totalAssetsRes = vaultContract.try_totalAssets();
+  if (!totalAssetsRes.reverted) {
+    vault.totalAssets = totalAssetsRes.value;
+  }
+
+  const pricePerShare = vaultContract.try_pricePerShare();
+  if (!pricePerShare.reverted) {
+    vault.pricePerShare = pricePerShare.value;
+  }
+
+  vault.pricePerShareUnderlying = convertAssetsToBorrowToken(
+    event.params.strategy,
+    vault.pricePerShare
+  );
+
+  vault.lastUpdatedTimestamp = event.block.timestamp;
+  vault.save();
+
+  // Store the strategy reports of the vault
+  const id = event.address
+    .toHexString()
+    .concat(event.params.strategy.toHexString())
+    .concat(event.transaction.hash.toHexString());
+  const vaultStrategyReported = new VaultStrategyReported(id);
+  vaultStrategyReported.vault = getOrCreateVault(event.address).id;
+  vaultStrategyReported.strategy = getOrCreateStrategy(
+    event.params.strategy
+  ).id;
+  vaultStrategyReported.gain = event.params.gain;
+  vaultStrategyReported.loss = event.params.loss;
+  vaultStrategyReported.timestamp = event.block.timestamp;
+  vaultStrategyReported.txHash = event.transaction.hash;
+
+  if (!pricePerShare.reverted) {
+    vaultStrategyReported.vaultPricePerShare = pricePerShare.value;
+  } else {
+    vaultStrategyReported.vaultPricePerShare = BIGINT_ZERO;
+  }
+
+  vaultStrategyReported.strategyPricePerShare = getStrategyPricePerShare(
+    event.params.strategy
+  );
+
+  // @todo Replace/implement separate logic to identify type of strategy
+  vaultStrategyReported.ptPriceInAsset = getPtPriceInAsset(
+    event.params.strategy
+  );
+
+  vaultStrategyReported.assetPriceInBorrowToken = getAssetPriceInBorrowToken(
+    event.params.strategy
+  );
+
+  vaultStrategyReported.pricePerShareUnderlying = vault.pricePerShareUnderlying;
+
+  vaultStrategyReported.save();
 }
