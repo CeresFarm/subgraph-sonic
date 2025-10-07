@@ -22,6 +22,7 @@ import {
   DebtPurchased as DebtPurchasedEvent,
   Shutdown as ShutdownEvent,
   VaultV3,
+  PermitCall,
 } from "../../generated/VaultV3/VaultV3";
 import { VaultStrategyReported } from "../../generated/schema";
 import {
@@ -47,7 +48,12 @@ import {
   getPtPriceInAsset,
   getStrategyPricePerShare,
 } from "../modules/strategy";
-import { BIGINT_MINUS_ONE, BIGINT_ZERO } from "../utils/constants";
+import {
+  BIGINT_MINUS_ONE,
+  BIGINT_ONE,
+  BIGINT_ZERO,
+  ZERO_ADDRESS,
+} from "../utils/constants";
 
 export function handleBlock(block: ethereum.Block): void {
   // Creates hourly, daily, and weekly snapshots based on the timestamp
@@ -152,7 +158,21 @@ export function handleWithdraw(event: WithdrawEvent): void {
 
 export function handleTransfer(event: TransferEvent): void {}
 
-export function handleStrategyChanged(event: StrategyChangedEvent): void {}
+export function handleStrategyChanged(event: StrategyChangedEvent): void {
+  // If change_type is 1, strategy was added;
+  // If change_type is 2, strategy was removed
+
+  const strategy = getOrCreateStrategy(event.params.strategy);
+  const vault = getOrCreateVault(event.address);
+
+  if (event.params.change_type == BIGINT_ONE) {
+    strategy.vault = vault.id;
+    strategy.save();
+  } else {
+    strategy.vault = ZERO_ADDRESS;
+    strategy.save();
+  }
+}
 
 export function handleDebtUpdated(event: DebtUpdatedEvent): void {}
 
