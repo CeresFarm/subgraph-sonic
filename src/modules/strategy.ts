@@ -124,3 +124,19 @@ export function getAssetPriceInBorrowToken(strategyAddress: Address): BigInt {
     return BIGINT_ZERO;
   }
 }
+
+// NOTE: This is a leveraged strategy specific function. Make sure to only call it for leveraged strategies.
+export function convertAssetsToBorrowToken(
+  strategyAddress: Address,
+  assetAmount: BigInt
+): BigInt {
+  // Convert one unit of pt token to assets
+  const strategyContract = LeveragedStrategy.bind(strategyAddress);
+  const amountInBorrowTokens =
+    strategyContract.try_convertAssetToBorrowToken(assetAmount);
+  if (!amountInBorrowTokens.reverted) {
+    return amountInBorrowTokens.value;
+  } else {
+    return BIGINT_ZERO;
+  }
+}

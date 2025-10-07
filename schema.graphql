@@ -182,7 +182,11 @@ type Vault @entity(immutable: false) {
 
   totalSupply: BigInt!
 
+  " Price per share of the vault's ERC4626 token "
   pricePerShare: BigInt!
+
+  " Price per share in the underlying asset "
+  pricePerShareUnderlying: BigInt!
 
   depositLimit: BigInt!
 
@@ -235,6 +239,7 @@ type Strategy @entity(immutable: false) {
 
   totalSupply: BigInt!
 
+  " Price per share of the strategy's ERC4626 token "
   pricePerShare: BigInt!
 
   " Total collateral in strategy collateral assets e.g PT-smsUsd "

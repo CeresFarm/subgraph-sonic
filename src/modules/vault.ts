@@ -55,8 +55,10 @@ export function getOrCreateVault(vaultAddress: Bytes): Vault {
     const pricePerShare = vaultContract.try_pricePerShare();
     if (!pricePerShare.reverted) {
       vault.pricePerShare = pricePerShare.value;
+      vault.pricePerShareUnderlying = pricePerShare.value;
     } else {
       vault.pricePerShare = BIGINT_ZERO;
+      vault.pricePerShareUnderlying = BIGINT_ZERO;
     }
 
     vault.depositLimit = BIGINT_ZERO;

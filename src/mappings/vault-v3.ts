@@ -53,6 +53,7 @@ import {
 } from "../modules/vault";
 import { getOrCreateUserVaultStats } from "../modules/user";
 import {
+  convertAssetsToBorrowToken,
   getAssetPriceInBorrowToken,
   getOrCreateStrategy,
   getPtPriceInAsset,
@@ -69,7 +70,11 @@ export function handleApproval(event: ApprovalEvent): void {}
 
 export function handleDeposit(event: DepositEvent): void {
   createTransactionHistory(event, null);
+
+  const pricePerShare = getVaultPricePerShare(event.address);
+
   const vault = getOrCreateVault(event.address);
+  vault.pricePerShare = pricePerShare;
   vault.totalAssetsDeposited = vault.totalAssetsDeposited.plus(
     event.params.assets
   );
@@ -86,7 +91,6 @@ export function handleDeposit(event: DepositEvent): void {
     const totalSharesAfterDeposit = userVaultStats.currentShares.plus(
       event.params.shares
     );
-    const pricePerShare = getVaultPricePerShare(event.address);
     if (pricePerShare && pricePerShare.notEqual(BIGINT_ZERO)) {
       // If the pricePerShare value is received from the contract, calculate the avgPricePerShare of user
       // Avg PricePerShare = (Prev shares * Prev Avg PPS + Deposited Shares * Current PPS) / totalShares
@@ -107,7 +111,10 @@ export function handleDeposit(event: DepositEvent): void {
 export function handleWithdraw(event: WithdrawEvent): void {
   createTransactionHistory(null, event);
 
+  const pricePerShare = getVaultPricePerShare(event.address);
+
   const vault = getOrCreateVault(event.address);
+  vault.pricePerShare = pricePerShare;
   vault.totalAssetsWithdrawn = vault.totalAssetsWithdrawn.plus(
     event.params.assets
   );
@@ -120,7 +127,6 @@ export function handleWithdraw(event: WithdrawEvent): void {
       event.address
     );
 
-    const pricePerShare = getVaultPricePerShare(event.address);
     if (pricePerShare && pricePerShare.notEqual(BIGINT_ZERO)) {
       const vaultDecimalsFactor = BigInt.fromI32(10).pow(18); // @todo Replace18 with vault decimals to generalize fn
       // Calculate realized profits/loss
@@ -418,6 +424,11 @@ export function handleStrategyReported(event: StrategyReportedEvent): void {
   if (!pricePerShare.reverted) {
     vault.pricePerShare = pricePerShare.value;
   }
+
+  vault.pricePerShareUnderlying = convertAssetsToBorrowToken(
+    event.params.strategy,
+    vault.pricePerShare
+  );
 
   vault.lastUpdatedTimestamp = event.block.timestamp;
   vault.save();
