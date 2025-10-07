@@ -167,11 +167,14 @@ type UserVaultStats @entity(immutable: false) {
   userAddress: Bytes!
   vaultAddress: Bytes!
   totalAssetsDeposited: BigInt!
+  totalDepositsUnderlying: BigInt!
   totalAssetsWithdrawn: BigInt!
+  totalWithdrawalsUnderlying: BigInt!
   realizedPnlAssets: BigInt!
-  realizedPnlUsd: BigDecimal!
+  realizedPnlUnderlying: BigDecimal!
   currentShares: BigInt!
   avgPricePerShare: BigInt!
+  avgPricePerShareUnderlying: BigInt!
   lastUpdatedTimestamp: BigInt!
 }
 

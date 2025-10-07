@@ -2,6 +2,7 @@ import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
 
 export const BIGINT_ZERO = BigInt.zero();
 export const BIGINT_ONE = BigInt.fromI32(1);
+export const BIGINT_MINUS_ONE = BigInt.fromI32(-1);
 
 export const BIGDECIMAL_ZERO = BigDecimal.zero();
 export const BIGDECIMAL_ONE = BigDecimal.fromString("1");
