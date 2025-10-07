@@ -61,11 +61,18 @@ export function getOrCreateVault(vaultAddress: Bytes): Vault {
       vault.pricePerShareUnderlying = BIGINT_ZERO;
     }
 
+    vault.totalPnlUnderlying = BIGINT_ZERO;
     vault.depositLimit = BIGINT_ZERO;
     vault.totalAssetsDeposited = BIGINT_ZERO;
     vault.totalAssetsWithdrawn = BIGINT_ZERO;
-    vault.isShutdown = false;
+    vault.totalGain = BIGINT_ZERO;
+    vault.totalLoss = BIGINT_ZERO;
+    vault.currentDebt = BIGINT_ZERO;
+    vault.totalProtocolFees = BIGINT_ZERO;
+    vault.totalFees = BIGINT_ZERO;
+    vault.totalRefunds = BIGINT_ZERO;
     vault.lastUpdatedTimestamp = BIGINT_ZERO;
+    vault.isShutdown = false;
     vault.lastHourlySnapshot = BIGINT_ZERO;
     vault.lastDailySnapshot = BIGINT_ZERO;
     vault.lastWeeklySnapshot = BIGINT_ZERO;
@@ -93,6 +100,27 @@ export function getVaultTotalAssets(vaultAddress: Address): BigInt {
   } else {
     return BIGINT_ZERO;
   }
+}
+
+export function calculateVaultPnlInUnderlying(
+  prevPps: BigInt,
+  newPps: BigInt,
+  totalAssets: BigInt,
+  vaultDecimals: i32
+): BigInt {
+  if (
+    prevPps == BIGINT_ZERO ||
+    newPps == BIGINT_ZERO ||
+    totalAssets == BIGINT_ZERO
+  ) {
+    return BIGINT_ZERO;
+  }
+
+  // PnL = (New PPS - Prev PPS) * Total Assets / 10 ^ decimals
+  return newPps
+    .minus(prevPps)
+    .times(totalAssets)
+    .div(BigInt.fromI32(10).pow(vaultDecimals as u8));
 }
 
 export function createVaultSnapshot(

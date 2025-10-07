@@ -45,6 +45,9 @@ type Vault @entity(immutable: false) {
   " Price per share in the underlying asset "
   pricePerShareUnderlying: BigInt!
 
+  " Total profits in the underlying asset "
+  totalPnlUnderlying: BigInt!
+
   depositLimit: BigInt!
 
   " Total amount of assets deposited to the vault over time"

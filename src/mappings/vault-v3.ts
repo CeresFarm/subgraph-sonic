@@ -27,6 +27,7 @@ import { VaultStrategyReported } from "../../generated/schema";
 import { Address, BigInt, dataSource, ethereum } from "@graphprotocol/graph-ts";
 import { createTransactionHistory } from "../modules/transaction";
 import {
+  calculateVaultPnlInUnderlying,
   createVaultSnapshot,
   getOrCreateVault,
   getVaultPricePerShare,
@@ -53,20 +54,33 @@ export function handleDeposit(event: DepositEvent): void {
   const vault = getOrCreateVault(event.address);
 
   const pricePerShare = getVaultPricePerShare(event.address);
+  let pricePerShareUnderlying: BigInt;
 
   // Update pricePerShareUnderlying if the default strategy is active
-  const defaultStrategy = vault.strategies.load().at(0);
-  if (defaultStrategy.isActive) {
-    vault.pricePerShareUnderlying = convertAssetsToBorrowToken(
+  const strategies = vault.strategies.load();
+  if (strategies.length > 0) {
+    const defaultStrategy = strategies[0];
+
+    pricePerShareUnderlying = convertAssetsToBorrowToken(
       Address.fromBytes(defaultStrategy.id),
       pricePerShare
     );
+    const pnlInUnderlying = calculateVaultPnlInUnderlying(
+      vault.pricePerShareUnderlying,
+      pricePerShareUnderlying,
+      vault.totalAssets,
+      vault.decimals
+    );
+    vault.totalPnlUnderlying = vault.totalPnlUnderlying.plus(pnlInUnderlying);
+    vault.pricePerShareUnderlying = pricePerShareUnderlying;
   }
 
   vault.pricePerShare = pricePerShare;
   vault.totalAssetsDeposited = vault.totalAssetsDeposited.plus(
     event.params.assets
   );
+
+  vault.totalAssets = vault.totalAssets.plus(event.params.assets);
   vault.save();
 
   // Update user vault stats
@@ -102,20 +116,31 @@ export function handleWithdraw(event: WithdrawEvent): void {
   const vault = getOrCreateVault(event.address);
 
   const pricePerShare = getVaultPricePerShare(event.address);
-
+  let pricePerShareUnderlying: BigInt;
   // Update pricePerShareUnderlying if the default strategy is active
-  const defaultStrategy = vault.strategies.load().at(0);
-  if (defaultStrategy.isActive) {
-    vault.pricePerShareUnderlying = convertAssetsToBorrowToken(
+  const strategies = vault.strategies.load();
+  if (strategies.length > 0) {
+    const defaultStrategy = strategies[0];
+
+    pricePerShareUnderlying = convertAssetsToBorrowToken(
       Address.fromBytes(defaultStrategy.id),
       pricePerShare
     );
+    const pnlInUnderlying = calculateVaultPnlInUnderlying(
+      vault.pricePerShareUnderlying,
+      pricePerShareUnderlying,
+      vault.totalAssets,
+      vault.decimals
+    );
+    vault.totalPnlUnderlying = vault.totalPnlUnderlying.plus(pnlInUnderlying);
+    vault.pricePerShareUnderlying = pricePerShareUnderlying;
   }
 
   vault.pricePerShare = pricePerShare;
   vault.totalAssetsWithdrawn = vault.totalAssetsWithdrawn.plus(
     event.params.assets
   );
+  vault.totalAssets = vault.totalAssets.minus(event.params.assets);
   vault.save();
 
   // Update user vault stats
@@ -222,20 +247,29 @@ export function handleStrategyReported(event: StrategyReportedEvent): void {
 
   const vaultContract = VaultV3.bind(event.address);
 
-  const totalAssetsRes = vaultContract.try_totalAssets();
-  if (!totalAssetsRes.reverted) {
-    vault.totalAssets = totalAssetsRes.value;
-  }
-
   const pricePerShare = vaultContract.try_pricePerShare();
   if (!pricePerShare.reverted) {
     vault.pricePerShare = pricePerShare.value;
   }
 
-  vault.pricePerShareUnderlying = convertAssetsToBorrowToken(
+  const pricePerShareUnderlying = convertAssetsToBorrowToken(
     event.params.strategy,
     vault.pricePerShare
   );
+
+  const pnlInUnderlying = calculateVaultPnlInUnderlying(
+    vault.pricePerShareUnderlying,
+    pricePerShareUnderlying,
+    vault.totalAssets,
+    vault.decimals
+  );
+  vault.totalPnlUnderlying = vault.totalPnlUnderlying.plus(pnlInUnderlying);
+  vault.pricePerShareUnderlying = pricePerShareUnderlying;
+
+  const totalAssetsRes = vaultContract.try_totalAssets();
+  if (!totalAssetsRes.reverted) {
+    vault.totalAssets = totalAssetsRes.value;
+  }
 
   vault.save();
 
