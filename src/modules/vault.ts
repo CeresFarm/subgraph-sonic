@@ -141,9 +141,8 @@ export function createVaultSnapshot(
     snapshot.depositApy = BIGDECIMAL_ZERO;
     snapshot.borrowApy = BIGDECIMAL_ZERO;
 
-    snapshot.pricePerShare = getVaultPricePerShare(
-      Address.fromBytes(vaultAddress)
-    );
+    snapshot.pricePerShare = vault.pricePerShare;
+    snapshot.pricePerShareUnderlying = vault.pricePerShareUnderlying;
 
     snapshot.totalAssets = getVaultTotalAssets(Address.fromBytes(vaultAddress));
     snapshot.save();
@@ -166,9 +165,8 @@ export function createVaultSnapshot(
     snapshot.depositApy = BIGDECIMAL_ZERO;
     snapshot.borrowApy = BIGDECIMAL_ZERO;
 
-    snapshot.pricePerShare = getVaultPricePerShare(
-      Address.fromBytes(vaultAddress)
-    );
+    snapshot.pricePerShare = vault.pricePerShare;
+    snapshot.pricePerShareUnderlying = vault.pricePerShareUnderlying;
 
     snapshot.totalAssets = getVaultTotalAssets(Address.fromBytes(vaultAddress));
     snapshot.save();
@@ -191,9 +189,8 @@ export function createVaultSnapshot(
     snapshot.depositApy = BIGDECIMAL_ZERO;
     snapshot.borrowApy = BIGDECIMAL_ZERO;
 
-    snapshot.pricePerShare = getVaultPricePerShare(
-      Address.fromBytes(vaultAddress)
-    );
+    snapshot.pricePerShare = vault.pricePerShare;
+    snapshot.pricePerShareUnderlying = vault.pricePerShareUnderlying;
 
     snapshot.totalAssets = getVaultTotalAssets(Address.fromBytes(vaultAddress));
     snapshot.save();

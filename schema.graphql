@@ -340,6 +340,7 @@ type VaultSnapshot @entity(immutable: true) {
   timestamp: BigInt!
   blockNumber: BigInt!
   pricePerShare: BigInt!
+  pricePerShareUnderlying: BigInt!
   totalAssets: BigInt!
   depositApy: BigDecimal!
   borrowApy: BigDecimal!
