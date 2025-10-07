@@ -53,11 +53,30 @@ type Vault @entity(immutable: false) {
   " Total amount of assets withdrawn from the vault over time"
   totalAssetsWithdrawn: BigInt!
 
+  " Total profits of the vault during reports "
+  totalGain: BigInt!
+
+  " Total losses of the vault during reports "
+  totalLoss: BigInt!
+
+  " Current debt of the vault to all strategies "
+  currentDebt: BigInt!
+
+  " Total protocol fees charged "
+  totalProtocolFees: BigInt!
+
+  " Total fees charged "
+  totalFees: BigInt!
+
+  " Total refunds from strategies "
+  totalRefunds: BigInt!
+
+  " Timestamp of the last update to the subgraph vault data "
+  lastUpdatedTimestamp: BigInt!
+
   strategies: [Strategy!]! @derivedFrom(field: "vault")
 
   isShutdown: Boolean!
-
-  lastUpdatedTimestamp: BigInt!
 
   lastHourlySnapshot: BigInt!
 
@@ -137,18 +156,6 @@ type TransactionHistory @entity(immutable: true) {
   txHash: Bytes! # bytes32
   blockNumber: BigInt!
   blockTimestamp: BigInt!
-}
-
-type VaultStats @entity(immutable: false) {
-  " Vault address "
-  id: Bytes!
-  totalGain: BigInt!
-  totalLoss: BigInt!
-  currentDebt: BigInt!
-  totalProtocolFees: BigInt!
-  totalFees: BigInt!
-  totalRefunds: BigInt!
-  lastUpdateTimestamp: BigInt!
 }
 
 type UserVaultStats @entity(immutable: false) {

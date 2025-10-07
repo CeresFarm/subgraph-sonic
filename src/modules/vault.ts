@@ -1,5 +1,5 @@
 import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
-import { Vault, VaultStats, VaultSnapshot } from "../../generated/schema";
+import { Vault, VaultSnapshot } from "../../generated/schema";
 import {
   BIGDECIMAL_ZERO,
   BIGINT_ZERO,
@@ -73,22 +73,6 @@ export function getOrCreateVault(vaultAddress: Bytes): Vault {
     vault.save();
   }
   return vault;
-}
-
-export function getOrCreateVaultStats(vaultAddress: Bytes): VaultStats {
-  let vaultStats = VaultStats.load(vaultAddress);
-  if (!vaultStats) {
-    vaultStats = new VaultStats(vaultAddress);
-    vaultStats.totalGain = BIGINT_ZERO;
-    vaultStats.totalLoss = BIGINT_ZERO;
-    vaultStats.currentDebt = BIGINT_ZERO;
-    vaultStats.totalProtocolFees = BIGINT_ZERO;
-    vaultStats.totalFees = BIGINT_ZERO;
-    vaultStats.totalRefunds = BIGINT_ZERO;
-    vaultStats.lastUpdateTimestamp = BIGINT_ZERO;
-    vaultStats.save();
-  }
-  return vaultStats;
 }
 
 export function getVaultPricePerShare(vaultAddress: Address): BigInt {

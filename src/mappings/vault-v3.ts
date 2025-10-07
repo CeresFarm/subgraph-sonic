@@ -29,7 +29,6 @@ import { createTransactionHistory } from "../modules/transaction";
 import {
   createVaultSnapshot,
   getOrCreateVault,
-  getOrCreateVaultStats,
   getVaultPricePerShare,
 } from "../modules/vault";
 import { getOrCreateUserVaultStats } from "../modules/user";
@@ -192,19 +191,17 @@ export function handleShutdown(event: ShutdownEvent): void {}
 /////////////////////////////////////////////////////////////////
 
 export function handleStrategyReported(event: StrategyReportedEvent): void {
-  const vaultStats = getOrCreateVaultStats(event.address);
-  vaultStats.totalGain = vaultStats.totalGain.plus(event.params.gain);
-  vaultStats.totalLoss = vaultStats.totalLoss.plus(event.params.loss);
-  vaultStats.currentDebt = event.params.current_debt;
-  vaultStats.totalProtocolFees = event.params.protocol_fees;
-  vaultStats.totalFees = vaultStats.totalFees.plus(event.params.total_fees);
-  vaultStats.totalRefunds = vaultStats.totalFees.plus(
-    event.params.total_refunds
-  );
-  vaultStats.lastUpdateTimestamp = event.block.timestamp;
-  vaultStats.save();
-
   const vault = getOrCreateVault(event.address);
+  vault.totalGain = vault.totalGain.plus(event.params.gain);
+  vault.totalLoss = vault.totalLoss.plus(event.params.loss);
+  vault.currentDebt = event.params.current_debt;
+  vault.totalProtocolFees = vault.totalProtocolFees.plus(
+    event.params.protocol_fees
+  );
+  vault.totalFees = vault.totalFees.plus(event.params.total_fees);
+  vault.totalRefunds = vault.totalFees.plus(event.params.total_refunds);
+  vault.lastUpdatedTimestamp = event.block.timestamp;
+
   const vaultContract = VaultV3.bind(event.address);
 
   const totalAssetsRes = vaultContract.try_totalAssets();
@@ -222,7 +219,6 @@ export function handleStrategyReported(event: StrategyReportedEvent): void {
     vault.pricePerShare
   );
 
-  vault.lastUpdatedTimestamp = event.block.timestamp;
   vault.save();
 
   // Store the strategy reports of the vault
@@ -230,8 +226,9 @@ export function handleStrategyReported(event: StrategyReportedEvent): void {
     .toHexString()
     .concat(event.params.strategy.toHexString())
     .concat(event.transaction.hash.toHexString());
+
   const vaultStrategyReported = new VaultStrategyReported(id);
-  vaultStrategyReported.vault = getOrCreateVault(event.address).id;
+  vaultStrategyReported.vault = vault.id;
   vaultStrategyReported.strategy = getOrCreateStrategy(
     event.params.strategy
   ).id;
@@ -240,26 +237,17 @@ export function handleStrategyReported(event: StrategyReportedEvent): void {
   vaultStrategyReported.timestamp = event.block.timestamp;
   vaultStrategyReported.txHash = event.transaction.hash;
 
-  if (!pricePerShare.reverted) {
-    vaultStrategyReported.vaultPricePerShare = pricePerShare.value;
-  } else {
-    vaultStrategyReported.vaultPricePerShare = BIGINT_ZERO;
-  }
-
+  vaultStrategyReported.vaultPricePerShare = vault.pricePerShare;
   vaultStrategyReported.strategyPricePerShare = getStrategyPricePerShare(
     event.params.strategy
   );
-
   // @todo Replace/implement separate logic to identify type of strategy
   vaultStrategyReported.ptPriceInAsset = getPtPriceInAsset(
     event.params.strategy
   );
-
   vaultStrategyReported.assetPriceInBorrowToken = getAssetPriceInBorrowToken(
     event.params.strategy
   );
-
   vaultStrategyReported.pricePerShareUnderlying = vault.pricePerShareUnderlying;
-
   vaultStrategyReported.save();
 }
