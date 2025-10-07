@@ -24,7 +24,14 @@ import {
   VaultV3,
 } from "../../generated/VaultV3/VaultV3";
 import { VaultStrategyReported } from "../../generated/schema";
-import { Address, BigInt, dataSource, ethereum } from "@graphprotocol/graph-ts";
+import {
+  Address,
+  BigInt,
+  Bytes,
+  dataSource,
+  ethereum,
+  log,
+} from "@graphprotocol/graph-ts";
 import { createTransactionHistory } from "../modules/transaction";
 import {
   calculateVaultPnlInUnderlying,
@@ -58,6 +65,11 @@ export function handleDeposit(event: DepositEvent): void {
 
   // Update pricePerShareUnderlying if the default strategy is active
   const strategies = vault.strategies.load();
+
+  log.warning("Strategies length in handleDeposit: {}", [
+    strategies.length.toString(),
+  ]);
+
   if (strategies.length > 0) {
     const defaultStrategy = strategies[0];
 
@@ -100,6 +112,11 @@ export function handleWithdraw(event: WithdrawEvent): void {
   let pricePerShareUnderlying: BigInt;
   // Update pricePerShareUnderlying if the default strategy is active
   const strategies = vault.strategies.load();
+
+  log.warning("Strategies length in handleWithdraw: {}", [
+    strategies.length.toString(),
+  ]);
+
   if (strategies.length > 0) {
     const defaultStrategy = strategies[0];
 

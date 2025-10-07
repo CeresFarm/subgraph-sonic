@@ -1,4 +1,4 @@
-import { Address, BigDecimal, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigDecimal, BigInt, Bytes } from "@graphprotocol/graph-ts";
 
 export const BIGINT_ZERO = BigInt.zero();
 export const BIGINT_ONE = BigInt.fromI32(1);
@@ -8,6 +8,9 @@ export const BIGDECIMAL_ZERO = BigDecimal.zero();
 export const BIGDECIMAL_ONE = BigDecimal.fromString("1");
 
 export const ZERO_ADDRESS = Address.zero();
+export const BYTES_ZERO = Bytes.fromHexString(
+  "0x0000000000000000000000000000000000000000"
+);
 
 export const BIGINT_ETHER = BigInt.fromI32(10).pow(18);
 
