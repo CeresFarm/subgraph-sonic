@@ -1,5 +1,9 @@
 import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
-import { Vault, VaultStats, VaultSnapshot } from "../../generated/schema";
+import {
+  Vault,
+  VaultSnapshot,
+  VaultStrategyReported,
+} from "../../generated/schema";
 import {
   BIGDECIMAL_ZERO,
   BIGINT_ZERO,
@@ -9,8 +13,12 @@ import {
   SnapshotType,
   ZERO_ADDRESS,
 } from "../utils/constants";
-import { VaultV3 } from "../../generated/VaultV3/VaultV3";
+import {
+  VaultV3,
+  StrategyReported as StrategyReportedEvent,
+} from "../../generated/VaultV3/VaultV3";
 import { getOrCreateProtocolStats } from "./protocol";
+import { getAssetPriceInBorrowToken, getOrCreateStrategy, getPtPriceInAsset, getStrategyPricePerShare } from "./strategy";
 
 export function getOrCreateVault(vaultAddress: Bytes): Vault {
   let vault = Vault.load(vaultAddress);
@@ -61,11 +69,18 @@ export function getOrCreateVault(vaultAddress: Bytes): Vault {
       vault.pricePerShareUnderlying = BIGINT_ZERO;
     }
 
+    vault.totalPnlUnderlying = BIGINT_ZERO;
     vault.depositLimit = BIGINT_ZERO;
     vault.totalAssetsDeposited = BIGINT_ZERO;
     vault.totalAssetsWithdrawn = BIGINT_ZERO;
-    vault.isShutdown = false;
+    vault.totalGain = BIGINT_ZERO;
+    vault.totalLoss = BIGINT_ZERO;
+    vault.currentDebt = BIGINT_ZERO;
+    vault.totalProtocolFees = BIGINT_ZERO;
+    vault.totalFees = BIGINT_ZERO;
+    vault.totalRefunds = BIGINT_ZERO;
     vault.lastUpdatedTimestamp = BIGINT_ZERO;
+    vault.isShutdown = false;
     vault.lastHourlySnapshot = BIGINT_ZERO;
     vault.lastDailySnapshot = BIGINT_ZERO;
     vault.lastWeeklySnapshot = BIGINT_ZERO;
@@ -73,22 +88,6 @@ export function getOrCreateVault(vaultAddress: Bytes): Vault {
     vault.save();
   }
   return vault;
-}
-
-export function getOrCreateVaultStats(vaultAddress: Bytes): VaultStats {
-  let vaultStats = VaultStats.load(vaultAddress);
-  if (!vaultStats) {
-    vaultStats = new VaultStats(vaultAddress);
-    vaultStats.totalGain = BIGINT_ZERO;
-    vaultStats.totalLoss = BIGINT_ZERO;
-    vaultStats.currentDebt = BIGINT_ZERO;
-    vaultStats.totalProtocolFees = BIGINT_ZERO;
-    vaultStats.totalFees = BIGINT_ZERO;
-    vaultStats.totalRefunds = BIGINT_ZERO;
-    vaultStats.lastUpdateTimestamp = BIGINT_ZERO;
-    vaultStats.save();
-  }
-  return vaultStats;
 }
 
 export function getVaultPricePerShare(vaultAddress: Address): BigInt {
@@ -109,6 +108,27 @@ export function getVaultTotalAssets(vaultAddress: Address): BigInt {
   } else {
     return BIGINT_ZERO;
   }
+}
+
+export function calculateVaultPnlInUnderlying(
+  prevPps: BigInt,
+  newPps: BigInt,
+  totalSupply: BigInt,
+  vaultDecimals: i32
+): BigInt {
+  if (
+    prevPps == BIGINT_ZERO ||
+    newPps == BIGINT_ZERO ||
+    totalSupply == BIGINT_ZERO
+  ) {
+    return BIGINT_ZERO;
+  }
+
+  // PnL = (New PPS - Prev PPS) * Total Assets / 10 ^ decimals
+  return newPps
+    .minus(prevPps)
+    .times(totalSupply)
+    .div(BigInt.fromI32(10).pow(vaultDecimals as u8));
 }
 
 export function createVaultSnapshot(
@@ -196,4 +216,40 @@ export function createVaultSnapshot(
     snapshot.save();
     return;
   }
+}
+
+export function createVaultStrategyReportedSnapshot(
+  event: StrategyReportedEvent
+): void {
+  const vault = getOrCreateVault(event.address);
+
+  // Store the strategy reports of the vault
+  const id = event.address
+    .toHexString()
+    .concat(event.params.strategy.toHexString())
+    .concat(event.transaction.hash.toHexString());
+
+  const vaultStrategyReported = new VaultStrategyReported(id);
+  vaultStrategyReported.vault = vault.id;
+  vaultStrategyReported.strategy = getOrCreateStrategy(
+    event.params.strategy
+  ).id;
+  vaultStrategyReported.gain = event.params.gain;
+  vaultStrategyReported.loss = event.params.loss;
+  vaultStrategyReported.timestamp = event.block.timestamp;
+  vaultStrategyReported.txHash = event.transaction.hash;
+
+  vaultStrategyReported.vaultPricePerShare = vault.pricePerShare;
+  vaultStrategyReported.strategyPricePerShare = getStrategyPricePerShare(
+    event.params.strategy
+  );
+  // @todo Replace/implement separate logic to identify type of strategy
+  vaultStrategyReported.ptPriceInAsset = getPtPriceInAsset(
+    event.params.strategy
+  );
+  vaultStrategyReported.assetPriceInBorrowToken = getAssetPriceInBorrowToken(
+    event.params.strategy
+  );
+  vaultStrategyReported.pricePerShareUnderlying = vault.pricePerShareUnderlying;
+  vaultStrategyReported.save();
 }
