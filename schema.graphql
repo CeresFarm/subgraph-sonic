@@ -170,6 +170,7 @@ type UserVaultStats @entity(immutable: false) {
   totalDepositsUnderlying: BigInt!
   totalAssetsWithdrawn: BigInt!
   totalWithdrawalsUnderlying: BigInt!
+  totalSharesTransferred: BigInt!
   realizedPnlAssets: BigInt!
   realizedPnlUnderlying: BigInt!
   currentShares: BigInt!

@@ -20,6 +20,7 @@ export function getOrCreateUserVaultStats(
     userVaultStats.totalDepositsUnderlying = BIGINT_ZERO;
     userVaultStats.totalAssetsWithdrawn = BIGINT_ZERO;
     userVaultStats.totalWithdrawalsUnderlying = BIGINT_ZERO;
+    userVaultStats.totalSharesTransferred = BIGINT_ZERO;
     userVaultStats.realizedPnlAssets = BIGINT_ZERO;
     userVaultStats.realizedPnlUnderlying = BIGINT_ZERO;
     userVaultStats.currentShares = BIGINT_ZERO;

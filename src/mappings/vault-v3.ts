@@ -38,7 +38,10 @@ import {
   getOrCreateVault,
   getVaultPricePerShare,
 } from "../modules/vault";
-import { updateUserVaultStats } from "../modules/user";
+import {
+  getOrCreateUserVaultStats,
+  updateUserVaultStats,
+} from "../modules/user";
 import {
   convertAssetsToBorrowToken,
   getOrCreateStrategy,
@@ -148,7 +151,36 @@ export function handleWithdraw(event: WithdrawEvent): void {
   );
 }
 
-export function handleTransfer(event: TransferEvent): void {}
+export function handleTransfer(event: TransferEvent): void {
+  const senderStats = getOrCreateUserVaultStats(
+    event.params.sender,
+    event.address
+  );
+  const receiverStats = getOrCreateUserVaultStats(
+    event.params.receiver,
+    event.address
+  );
+
+  // Sender transfers the token, so its a net negative, for receiver it is positive
+  senderStats.totalSharesTransferred = senderStats.totalSharesTransferred.plus(
+    event.params.value.times(BIGINT_MINUS_ONE)
+  );
+  receiverStats.totalSharesTransferred =
+    receiverStats.totalSharesTransferred.plus(event.params.value);
+
+  senderStats.currentShares = senderStats.currentShares.minus(
+    event.params.value
+  );
+  receiverStats.currentShares = receiverStats.currentShares.plus(
+    event.params.value
+  );
+
+  senderStats.lastUpdatedTimestamp = event.block.timestamp;
+  receiverStats.lastUpdatedTimestamp = event.block.timestamp;
+
+  senderStats.save();
+  receiverStats.save();
+}
 
 export function handleStrategyChanged(event: StrategyChangedEvent): void {
   // If change_type is 1, strategy was added;
