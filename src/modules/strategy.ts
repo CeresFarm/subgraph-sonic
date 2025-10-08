@@ -72,6 +72,7 @@ export function getOrCreateStrategy(strategyAddress: Bytes): Strategy {
       strategy.performanceFeeBps = 0;
     }
 
+    strategy.performanceFeeRecipient = ZERO_ADDRESS;
     strategy.protocolFeeBps = 0;
     strategy.isActive = true;
     strategy.lastReportTimestamp = BIGINT_ZERO;
