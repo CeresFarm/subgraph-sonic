@@ -62,7 +62,11 @@ type Vault @entity(immutable: false) {
   " Total profits in the underlying asset "
   totalPnlUnderlying: BigInt!
 
+  " The total cap on assets that can be deposited to the vault"
   depositLimit: BigInt!
+
+  " Available deposit limit - amount of additional assets that can be deposited to the vault"
+  availableDepositLimit: BigInt!
 
   " Total amount of assets deposited to the vault over time"
   totalAssetsDeposited: BigInt!

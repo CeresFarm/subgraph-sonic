@@ -92,6 +92,7 @@ export function handleDeposit(event: DepositEvent): void {
   );
 
   vault.totalAssets = vault.totalAssets.plus(event.params.assets);
+  vault.availableDepositLimit = vault.depositLimit.minus(vault.totalAssets);
   vault.totalSupply = vault.totalSupply.plus(event.params.shares);
   vault.save();
 
@@ -139,6 +140,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
     event.params.assets
   );
   vault.totalAssets = vault.totalAssets.minus(event.params.assets);
+  vault.availableDepositLimit = vault.depositLimit.minus(vault.totalAssets);
   vault.totalSupply = vault.totalSupply.minus(event.params.shares);
   vault.save();
 
@@ -292,6 +294,7 @@ export function handleStrategyReported(event: StrategyReportedEvent): void {
     vault.totalAssets = totalAssetsRes.value;
   }
 
+  vault.availableDepositLimit = vault.depositLimit.minus(vault.totalAssets);
   vault.save();
 
   createVaultStrategyReportedSnapshot(event);

@@ -77,6 +77,7 @@ export function getOrCreateVault(vaultAddress: Bytes): Vault {
 
     vault.totalPnlUnderlying = BIGINT_ZERO;
     vault.depositLimit = BIGINT_ZERO;
+    vault.availableDepositLimit = BIGINT_ZERO;
     vault.totalAssetsDeposited = BIGINT_ZERO;
     vault.totalAssetsWithdrawn = BIGINT_ZERO;
     vault.totalGain = BIGINT_ZERO;
