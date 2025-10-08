@@ -73,6 +73,8 @@ dataSources:
           file: ./abis/ITokenizedStrategy.json
         - name: ERC20
           file: ./abis/ERC20.json
+        - name: LeveragedStrategy
+          file: ./abis/LeveragedStrategy.json
       eventHandlers:
         - event: NewStrategy(indexed address,indexed address)
           handler: handleNewStrategy
