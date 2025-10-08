@@ -233,4 +233,6 @@ templates:
       eventHandlers:
         - event: Reported(uint256,uint256,uint256,uint256)
           handler: handleReported
+        - event: UpdatePerformanceFeeRecipient(indexed address)
+          handler: handleUpdatePerformanceFeeRecipient
       file: ./src/mappings/tokenized-strategy.ts

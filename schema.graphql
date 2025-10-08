@@ -148,7 +148,11 @@ type Strategy @entity(immutable: false) {
   " Total debt of the strategy in borrow tokens e.g USDC "
   totalDebt: BigInt!
 
+  " Performance fees charged by the strategy on profits in basis points"
   performanceFeeBps: Int!
+
+  " Performance fee recipient - address that receives the performance fees in strategy tokens "
+  performanceFeeRecipient: Bytes!
 
   protocolFeeBps: Int!
 
