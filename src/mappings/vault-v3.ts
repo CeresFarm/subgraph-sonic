@@ -234,9 +234,11 @@ export function handleUpdatedMaxDebtForStrategy(
   event: UpdatedMaxDebtForStrategyEvent
 ): void {}
 
-export function handleUpdateDepositLimit(
-  event: UpdateDepositLimitEvent
-): void {}
+export function handleUpdateDepositLimit(event: UpdateDepositLimitEvent): void {
+  const vault = getOrCreateVault(event.address);
+  vault.depositLimit = event.params.deposit_limit;
+  vault.save();
+}
 
 export function handleUpdateMinimumTotalIdle(
   event: UpdateMinimumTotalIdleEvent
