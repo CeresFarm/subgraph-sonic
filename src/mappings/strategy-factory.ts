@@ -24,8 +24,5 @@ export function handleNewStrategy(event: NewStrategyEvent): void {
   // Create a new strategy data source from Template
   getOrCreateStrategy(event.params.strategy);
   LeveragedStrategyTemplate.create(event.params.strategy);
-
-  getOrCreateStrategy(event.params.strategy);
-  LeveragedStrategyTemplate.create(event.params.strategy);
   ITokenizedStrategyTemplate.create(event.params.strategy);
 }

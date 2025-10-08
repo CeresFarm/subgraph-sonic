@@ -23,7 +23,6 @@ import {
   Shutdown as ShutdownEvent,
   VaultV3,
 } from "../../generated/VaultV3/VaultV3";
-import { VaultStrategyReported } from "../../generated/schema";
 import {
   Address,
   BigInt,
@@ -35,23 +34,16 @@ import { createTransactionHistory } from "../modules/transaction";
 import {
   calculateVaultPnlInUnderlying,
   createVaultSnapshot,
+  createVaultStrategyReportedSnapshot,
   getOrCreateVault,
   getVaultPricePerShare,
 } from "../modules/vault";
 import { updateUserVaultStats } from "../modules/user";
 import {
   convertAssetsToBorrowToken,
-  getAssetPriceInBorrowToken,
   getOrCreateStrategy,
-  getPtPriceInAsset,
-  getStrategyPricePerShare,
 } from "../modules/strategy";
-import {
-  BIGINT_MINUS_ONE,
-  BIGINT_ONE,
-  BIGINT_ZERO,
-  ZERO_ADDRESS,
-} from "../utils/constants";
+import { BIGINT_MINUS_ONE, BIGINT_ONE, ZERO_ADDRESS } from "../utils/constants";
 
 export function handleBlock(block: ethereum.Block): void {
   // Creates hourly, daily, and weekly snapshots based on the timestamp
@@ -268,33 +260,5 @@ export function handleStrategyReported(event: StrategyReportedEvent): void {
 
   vault.save();
 
-  // Store the strategy reports of the vault
-  const id = event.address
-    .toHexString()
-    .concat(event.params.strategy.toHexString())
-    .concat(event.transaction.hash.toHexString());
-
-  const vaultStrategyReported = new VaultStrategyReported(id);
-  vaultStrategyReported.vault = vault.id;
-  vaultStrategyReported.strategy = getOrCreateStrategy(
-    event.params.strategy
-  ).id;
-  vaultStrategyReported.gain = event.params.gain;
-  vaultStrategyReported.loss = event.params.loss;
-  vaultStrategyReported.timestamp = event.block.timestamp;
-  vaultStrategyReported.txHash = event.transaction.hash;
-
-  vaultStrategyReported.vaultPricePerShare = vault.pricePerShare;
-  vaultStrategyReported.strategyPricePerShare = getStrategyPricePerShare(
-    event.params.strategy
-  );
-  // @todo Replace/implement separate logic to identify type of strategy
-  vaultStrategyReported.ptPriceInAsset = getPtPriceInAsset(
-    event.params.strategy
-  );
-  vaultStrategyReported.assetPriceInBorrowToken = getAssetPriceInBorrowToken(
-    event.params.strategy
-  );
-  vaultStrategyReported.pricePerShareUnderlying = vault.pricePerShareUnderlying;
-  vaultStrategyReported.save();
+  createVaultStrategyReportedSnapshot(event);
 }
