@@ -6,6 +6,7 @@ import { getOrCreateVault } from "./vault";
 import { ITokenizedStrategy } from "../../generated/VaultV3/ITokenizedStrategy";
 import { getOrCreateProtocolStats } from "./protocol";
 import { LeveragedStrategy } from "../../generated/templates/LeveragedStrategy/LeveragedStrategy";
+import { getOrCreateToken } from "./token";
 
 export function getOrCreateStrategy(strategyAddress: Bytes): Strategy {
   let strategy = Strategy.load(strategyAddress);
@@ -39,6 +40,13 @@ export function getOrCreateStrategy(strategyAddress: Bytes): Strategy {
       strategy.decimals = decimals.value;
     } else {
       strategy.decimals = 18;
+    }
+
+    const asset = strategyContract.try_asset();
+    if (!asset.reverted) {
+      strategy.asset = getOrCreateToken(asset.value).id;
+    } else {
+      strategy.asset = getOrCreateToken(ZERO_ADDRESS).id;
     }
 
     // Default to "Invalid" type; can be updated later with updateStrategyType

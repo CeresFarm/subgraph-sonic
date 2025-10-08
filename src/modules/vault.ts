@@ -18,7 +18,13 @@ import {
   StrategyReported as StrategyReportedEvent,
 } from "../../generated/VaultV3/VaultV3";
 import { getOrCreateProtocolStats } from "./protocol";
-import { getAssetPriceInBorrowToken, getOrCreateStrategy, getPtPriceInAsset, getStrategyPricePerShare } from "./strategy";
+import {
+  getAssetPriceInBorrowToken,
+  getOrCreateStrategy,
+  getPtPriceInAsset,
+  getStrategyPricePerShare,
+} from "./strategy";
+import { getOrCreateToken } from "./token";
 
 export function getOrCreateVault(vaultAddress: Bytes): Vault {
   let vault = Vault.load(vaultAddress);
@@ -52,9 +58,9 @@ export function getOrCreateVault(vaultAddress: Bytes): Vault {
 
     const asset = vaultContract.try_asset();
     if (!asset.reverted) {
-      vault.asset = asset.value;
+      vault.asset = getOrCreateToken(asset.value).id;
     } else {
-      vault.asset = ZERO_ADDRESS;
+      vault.asset = getOrCreateToken(ZERO_ADDRESS).id;
     }
 
     vault.totalAssets = BIGINT_ZERO;

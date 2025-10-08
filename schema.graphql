@@ -16,6 +16,20 @@ enum SnapshotType {
   Weekly
 }
 
+type Token @entity(immutable: true) {
+  " Token address "
+  id: Bytes!
+
+  " Token name "
+  name: String!
+
+  " Token symbol "
+  symbol: String!
+
+  " Token decimals "
+  decimals: Int!
+}
+
 type Vault @entity(immutable: false) {
   " Vault address "
   id: Bytes!
@@ -32,8 +46,8 @@ type Vault @entity(immutable: false) {
   " Vault decimals "
   decimals: Int!
 
-  " Underlying asset address "
-  asset: Bytes!
+  " Vault deposit/withdraw asset "
+  asset: Token!
 
   totalAssets: BigInt!
 
@@ -107,6 +121,9 @@ type Strategy @entity(immutable: false) {
 
   " Strategy decimals "
   decimals: Int!
+
+  " Strategy deposit/withdraw Asset "
+  asset: Token!
 
   " Strategy type "
   strategyType: StrategyType!
