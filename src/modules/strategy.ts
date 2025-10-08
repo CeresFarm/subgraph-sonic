@@ -1,5 +1,5 @@
 import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
-import { Strategy } from "../../generated/schema";
+import { Strategy, Token } from "../../generated/schema";
 import { BIGINT_ZERO, ZERO_ADDRESS } from "../utils/constants";
 import { getOrCreateVault } from "./vault";
 
@@ -82,6 +82,10 @@ export function getOrCreateStrategy(strategyAddress: Bytes): Strategy {
     strategy.totalPerformanceFees = BIGINT_ZERO;
     strategy.lastSnapshotTimestamp = BIGINT_ZERO;
 
+    // Leveraged strategy specific fields
+    strategy.borrowAsset =
+      getBorrowAssetForLeveragedStrategy(strategyAddress).id;
+
     strategy.save();
   }
   return strategy;
@@ -147,5 +151,19 @@ export function convertAssetsToBorrowToken(
     return amountInBorrowTokens.value;
   } else {
     return BIGINT_ZERO;
+  }
+}
+
+export function getBorrowAssetForLeveragedStrategy(
+  strategyAddress: Bytes
+): Token {
+  const strategyContract = LeveragedStrategy.bind(
+    Address.fromBytes(strategyAddress)
+  );
+  const borrowAsset = strategyContract.try_SILO_BORROW_TOKEN();
+  if (!borrowAsset.reverted) {
+    return getOrCreateToken(borrowAsset.value);
+  } else {
+    return getOrCreateToken(ZERO_ADDRESS);
   }
 }

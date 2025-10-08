@@ -170,6 +170,9 @@ type Strategy @entity(immutable: false) {
   totalPerformanceFees: BigInt!
 
   lastSnapshotTimestamp: BigInt!
+
+  " NOTE: Below fields are custom for Ceres Leveraged Strategy - fields will be empty/invalid for other strategies "
+  borrowAsset: Token!
 }
 
 type TransactionHistory @entity(immutable: true) {
