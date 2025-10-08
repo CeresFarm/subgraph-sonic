@@ -31,6 +31,8 @@ dataSources:
           file: ./abis/VaultV3.json
         - name: ITokenizedStrategy
           file: ./abis/ITokenizedStrategy.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         - event: FactoryShutdown()
           handler: handleFactoryShutdown
@@ -69,6 +71,8 @@ dataSources:
           file: ./abis/VaultV3.json
         - name: ITokenizedStrategy
           file: ./abis/ITokenizedStrategy.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         - event: NewStrategy(indexed address,indexed address)
           handler: handleNewStrategy
@@ -117,6 +121,8 @@ templates:
           file: ./abis/PendleMarketV3.json
         - name: SiloLens
           file: ./abis/SiloLens.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         - event: Deposit(indexed address,indexed address,uint256,uint256)
           handler: handleDeposit
@@ -191,6 +197,8 @@ templates:
           file: ./abis/PendleMarketV3.json
         - name: SiloLens
           file: ./abis/SiloLens.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         - event: LossOnWithdrawal(uint256)
           handler: handleLossOnWithdrawal
@@ -220,6 +228,8 @@ templates:
           file: ./abis/PendleMarketV3.json
         - name: SiloLens
           file: ./abis/SiloLens.json
+        - name: ERC20
+          file: ./abis/ERC20.json
       eventHandlers:
         - event: Reported(uint256,uint256,uint256,uint256)
           handler: handleReported
