@@ -105,13 +105,13 @@ export function getVaultTotalAssets(vaultAddress: Address): BigInt {
 export function calculateVaultPnlInUnderlying(
   prevPps: BigInt,
   newPps: BigInt,
-  totalAssets: BigInt,
+  totalSupply: BigInt,
   vaultDecimals: i32
 ): BigInt {
   if (
     prevPps == BIGINT_ZERO ||
     newPps == BIGINT_ZERO ||
-    totalAssets == BIGINT_ZERO
+    totalSupply == BIGINT_ZERO
   ) {
     return BIGINT_ZERO;
   }
@@ -119,7 +119,7 @@ export function calculateVaultPnlInUnderlying(
   // PnL = (New PPS - Prev PPS) * Total Assets / 10 ^ decimals
   return newPps
     .minus(prevPps)
-    .times(totalAssets)
+    .times(totalSupply)
     .div(BigInt.fromI32(10).pow(vaultDecimals as u8));
 }
 

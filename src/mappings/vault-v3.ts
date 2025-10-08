@@ -22,13 +22,11 @@ import {
   DebtPurchased as DebtPurchasedEvent,
   Shutdown as ShutdownEvent,
   VaultV3,
-  PermitCall,
 } from "../../generated/VaultV3/VaultV3";
 import { VaultStrategyReported } from "../../generated/schema";
 import {
   Address,
   BigInt,
-  Bytes,
   dataSource,
   ethereum,
   log,
@@ -86,7 +84,7 @@ export function handleDeposit(event: DepositEvent): void {
     const pnlInUnderlying = calculateVaultPnlInUnderlying(
       vault.pricePerShareUnderlying,
       pricePerShareUnderlying,
-      vault.totalAssets,
+      vault.totalSupply,
       vault.decimals
     );
     vault.totalPnlUnderlying = vault.totalPnlUnderlying.plus(pnlInUnderlying);
@@ -99,6 +97,7 @@ export function handleDeposit(event: DepositEvent): void {
   );
 
   vault.totalAssets = vault.totalAssets.plus(event.params.assets);
+  vault.totalSupply = vault.totalSupply.plus(event.params.shares);
   vault.save();
 
   updateUserVaultStats(
@@ -133,7 +132,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
     const pnlInUnderlying = calculateVaultPnlInUnderlying(
       vault.pricePerShareUnderlying,
       pricePerShareUnderlying,
-      vault.totalAssets,
+      vault.totalSupply,
       vault.decimals
     );
     vault.totalPnlUnderlying = vault.totalPnlUnderlying.plus(pnlInUnderlying);
@@ -145,6 +144,7 @@ export function handleWithdraw(event: WithdrawEvent): void {
     event.params.assets
   );
   vault.totalAssets = vault.totalAssets.minus(event.params.assets);
+  vault.totalSupply = vault.totalSupply.minus(event.params.shares);
   vault.save();
 
   updateUserVaultStats(
